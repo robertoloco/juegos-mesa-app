@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos de Grupo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-select {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .game-card.selected {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .game-card h3 {
+            margin-bottom: 8px;
+            font-size: 20px;
+        }
+
+        .game-card p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .code-display {
+            background: #f8f9fa;
+            border: 3px dashed #667eea;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .code-display .code {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-display p {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .role-card h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .role-card .word {
+            font-size: 40px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .role-card.blanco {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .role-card.lobo {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #333;
+        }
+
+        .player-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .player-list h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .player-list ul {
+            list-style: none;
+        }
+
+        .player-list li {
+            padding: 8px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #856404;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #0c5460;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .code-display .code {
+                font-size: 36px;
+                letter-spacing: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla Inicial -->
+        <div id="homeScreen" class="screen active">
+            <h1>🎮 Juegos de Grupo</h1>
+            <p class="subtitle">Selecciona tu modo de juego</p>
+            
+            <div class="btn" onclick="showCreateGame()">Crear Nueva Sala</div>
+            <div class="btn btn-secondary" onclick="showJoinGame()">Unirse a Sala</div>
+        </div>
+
+        <!-- Pantalla: Crear Sala -->
+        <div id="createGameScreen" class="screen">
+            <h1>Crear Nueva Sala</h1>
+            <p class="subtitle">Configura tu juego</p>
+
+            <label>Selecciona el Juego:</label>
+            <div class="game-select">
+                <div class="game-card" onclick="selectGame('blanco')">
+                    <h3>🎭 Blanco</h3>
+                    <p>Todos tienen una palabra excepto el Blanco. ¡Descúbrelo sin revelar tu palabra!</p>
+                </div>
+                <div class="game-card" onclick="selectGame('lobo')">
+                    <h3>🐺 El Lobo</h3>
+                    <p>Aldeanos vs Lobos. Los lobos deben eliminar aldeanos sin ser descubiertos.</p>
+                </div>
+            </div>
+
+            <div id="blancoConfig" class="hidden">
+                <label>Palabra Secreta:</label>
+                <input type="text" id="secretWord" placeholder="Ej: Pizza">
+                
+                <div class="info">
+                    💡 Esta palabra la verán todos excepto el jugador "Blanco"
+                </div>
+            </div>
+
+            <label>Nombres de Jugadores (separados por coma):</label>
+            <textarea id="playerNames" placeholder="Juan, María, Pedro, Ana"></textarea>
+            
+            <div class="info">
+                ℹ️ Mínimo 3 jugadores recomendado
+            </div>
+
+            <div class="btn" onclick="createGame()">Crear Sala</div>
+            <div class="btn btn-secondary" onclick="showHome()">Volver</div>
+        </div>
+
+        <!-- Pantalla: Sala Creada -->
+        <div id="lobbyScreen" class="screen">
+            <h1>✅ Sala Creada</h1>
+            
+            <div class="code-display">
+                <div class="code" id="roomCode">----</div>
+                <p>Comparte este código con los jugadores</p>
+            </div>
+
+            <div class="player-list">
+                <h3>Jugadores en esta sala:</h3>
+                <ul id="playerListDisplay"></ul>
+            </div>
+
+            <div class="warning">
+                ⚠️ Cada jugador debe entrar con su nombre y el código de sala para ver su rol
+            </div>
+
+            <div class="btn" onclick="showHome()">Crear Nueva Sala</div>
+        </div>
+
+        <!-- Pantalla: Unirse a Sala -->
+        <div id="joinGameScreen" class="screen">
+            <h1>Unirse a Sala</h1>
+            <p class="subtitle">Introduce tus datos</p>
+
+            <label>Tu Nombre:</label>
+            <input type="text" id="playerName" placeholder="Tu nombre">
+
+            <label>Código de Sala:</label>
+            <input type="text" id="roomCodeInput" placeholder="Ej: A1B2" maxlength="4" style="text-transform: uppercase;">
+
+            <div class="btn" onclick="joinGame()">Ver Mi Rol</div>
+            <div class="btn btn-secondary" onclick="showHome()">Volver</div>
+        </div>
+
+        <!-- Pantalla: Ver Rol -->
+        <div id="roleScreen" class="screen">
+            <h1>Tu Rol</h1>
+            
+            <div id="roleDisplay"></div>
+
+            <div class="btn" onclick="showHome()">Salir</div>
+        </div>
+    </div>
+
+    <script>
+        let selectedGame = null;
+        let currentRoom = null;
+
+        // Navegación entre pantallas
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showHome() {
+            selectedGame = null;
+            currentRoom = null;
+            document.getElementById('playerNames').value = '';
+            document.getElementById('secretWord').value = '';
+            document.getElementById('playerName').value = '';
+            document.getElementById('roomCodeInput').value = '';
+            showScreen('homeScreen');
+        }
+
+        function showCreateGame() {
+            showScreen('createGameScreen');
+        }
+
+        function showJoinGame() {
+            showScreen('joinGameScreen');
+        }
+
+        // Selección de juego
+        function selectGame(game) {
+            selectedGame = game;
+            document.querySelectorAll('.game-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.game-card').classList.add('selected');
+
+            // Mostrar/ocultar configuración específica
+            if (game === 'blanco') {
+                document.getElementById('blancoConfig').classList.remove('hidden');
+            } else {
+                document.getElementById('blancoConfig').classList.add('hidden');
+            }
+        }
+
+        // Crear sala
+        function createGame() {
+            if (!selectedGame) {
+                alert('Por favor selecciona un juego');
+                return;
+            }
+
+            const playerNamesInput = document.getElementById('playerNames').value.trim();
+            if (!playerNamesInput) {
+                alert('Por favor introduce los nombres de los jugadores');
+                return;
+            }
+
+            const players = playerNamesInput.split(',').map(name => name.trim()).filter(name => name);
+            
+            if (players.length < 3) {
+                alert('Se necesitan mínimo 3 jugadores');
+                return;
+            }
+
+            if (selectedGame === 'blanco') {
+                const secretWord = document.getElementById('secretWord').value.trim();
+                if (!secretWord) {
+                    alert('Por favor introduce la palabra secreta');
+                    return;
+                }
+            }
+
+            // Generar código de sala único
+            const roomCode = generateRoomCode();
+            
+            // Asignar roles
+            const room = {
+                code: roomCode,
+                game: selectedGame,
+                players: [],
+                createdAt: Date.now()
+            };
+
+            if (selectedGame === 'blanco') {
+                room.secretWord = document.getElementById('secretWord').value.trim();
+                const blancoIndex = Math.floor(Math.random() * players.length);
+                
+                players.forEach((name, index) => {
+                    room.players.push({
+                        name: name,
+                        role: index === blancoIndex ? 'blanco' : 'normal',
+                        word: index === blancoIndex ? 'BLANCO' : room.secretWord
+                    });
+                });
+            } else if (selectedGame === 'lobo') {
+                const numLobos = Math.max(1, Math.floor(players.length / 4));
+                const roles = ['lobo'].concat(Array(players.length - numLobos).fill('aldeano'));
+                shuffleArray(roles);
+                
+                players.forEach((name, index) => {
+                    room.players.push({
+                        name: name,
+                        role: roles[index]
+                    });
+                });
+            }
+
+            // Guardar en localStorage
+            saveRoom(room);
+            currentRoom = room;
+
+            // Mostrar pantalla de lobby
+            displayLobby(room);
+        }
+
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 4; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            // Verificar que no exista
+            if (localStorage.getItem('room_' + code)) {
+                return generateRoomCode();
+            }
+            
+            return code;
+        }
+
+        function saveRoom(room) {
+            localStorage.setItem('room_' + room.code, JSON.stringify(room));
+            
+            // Limpiar salas antiguas (más de 24 horas)
+            const now = Date.now();
+            for (let key in localStorage) {
+                if (key.startsWith('room_')) {
+                    const data = JSON.parse(localStorage.getItem(key));
+                    if (now - data.createdAt > 24 * 60 * 60 * 1000) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+        }
+
+        function displayLobby(room) {
+            document.getElementById('roomCode').textContent = room.code;
+            
+            const playerList = document.getElementById('playerListDisplay');
+            playerList.innerHTML = '';
+            room.players.forEach(player => {
+                const li = document.createElement('li');
+                li.textContent = player.name;
+                playerList.appendChild(li);
+            });
+
+            showScreen('lobbyScreen');
+        }
+
+        // Unirse a sala
+        function joinGame() {
+            const playerName = document.getElementById('playerName').value.trim();
+            const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+
+            if (!playerName) {
+                alert('Por favor introduce tu nombre');
+                return;
+            }
+
+            if (!roomCode || roomCode.length !== 4) {
+                alert('Por favor introduce un código de sala válido');
+                return;
+            }
+
+            // Buscar sala
+            const roomData = localStorage.getItem('room_' + roomCode);
+            if (!roomData) {
+                alert('Sala no encontrada. Verifica el código.');
+                return;
+            }
+
+            const room = JSON.parse(roomData);
+            
+            // Buscar jugador
+            const player = room.players.find(p => p.name.toLowerCase() === playerName.toLowerCase());
+            
+            if (!player) {
+                alert('Tu nombre no está en la lista de jugadores de esta sala');
+                return;
+            }
+
+            // Mostrar rol
+            displayRole(room, player);
+        }
+
+        function displayRole(room, player) {
+            const roleDisplay = document.getElementById('roleDisplay');
+            
+            if (room.game === 'blanco') {
+                if (player.role === 'blanco') {
+                    roleDisplay.innerHTML = `
+                        <div class="role-card blanco">
+                            <h2>¡Eres el BLANCO!</h2>
+                            <div class="word">❓ BLANCO</div>
+                            <p>No tienes palabra. Debes adivinar cuál es la palabra secreta sin que te descubran.</p>
+                            <p>💡 Disimula y trata de integrarte en la conversación</p>
+                        </div>
+                    `;
+                } else {
+                    roleDisplay.innerHTML = `
+                        <div class="role-card">
+                            <h2>Tu Palabra es:</h2>
+                            <div class="word">${player.word}</div>
+                            <p>Hay un jugador que es el BLANCO y no tiene esta palabra.</p>
+                            <p>💡 Habla sobre la palabra sin decirla directamente</p>
+                        </div>
+                    `;
+                }
+            } else if (room.game === 'lobo') {
+                const lobos = room.players.filter(p => p.role === 'lobo').map(p => p.name);
+                
+                if (player.role === 'lobo') {
+                    roleDisplay.innerHTML = `
+                        <div class="role-card lobo">
+                            <h2>🐺 Eres un LOBO</h2>
+                            <div class="word">LOBO</div>
+                            <p><strong>Otros lobos:</strong> ${lobos.filter(n => n !== player.name).join(', ') || 'Ninguno (eres el único)'}</p>
+                            <p>💡 Elimina a los aldeanos sin que te descubran</p>
+                        </div>
+                    `;
+                } else {
+                    roleDisplay.innerHTML = `
+                        <div class="role-card">
+                            <h2>👥 Eres un ALDEANO</h2>
+                            <div class="word">ALDEANO</div>
+                            <p>Debes identificar y eliminar a los lobos antes de que te eliminen.</p>
+                            <p>💡 Observa el comportamiento de los demás</p>
+                        </div>
+                    `;
+                }
+            }
+
+            showScreen('roleScreen');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Inicialización
+        showHome();
+    </script>
+</body>
+</html>
