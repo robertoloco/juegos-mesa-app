@@ -718,28 +718,6 @@
                         </div>
                     `;
                 }
-            } else if (room.game === 'lobo') {
-                const lobos = Object.keys(room.players).filter(name => room.players[name].role === 'lobo');
-                
-                if (player.role === 'lobo') {
-                    gameContent.innerHTML = `
-                        <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #333; padding: 40px; border-radius: 15px; text-align: center;">
-                            <h2 style="font-size: 32px; margin-bottom: 15px;">🐺 Eres un LOBO</h2>
-                            <div style="font-size: 40px; font-weight: bold; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 10px;">LOBO</div>
-                            <p><strong>Otros lobos:</strong> ${lobos.filter(n => n !== playerName).join(', ') || 'Ninguno (eres el único)'}</p>
-                            <p>💡 Elimina a los aldeanos sin que te descubran</p>
-                        </div>
-                    `;
-                } else {
-                    gameContent.innerHTML = `
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px; text-align: center;">
-                            <h2 style="font-size: 32px; margin-bottom: 15px;">👥 Eres un ALDEANO</h2>
-                            <div style="font-size: 40px; font-weight: bold; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px;">ALDEANO</div>
-                            <p>Debes identificar y eliminar a los lobos antes de que te eliminen.</p>
-                            <p>💡 Observa el comportamiento de los demás</p>
-                        </div>
-                    `;
-                }
             }
 
             showScreen('gameScreen');
