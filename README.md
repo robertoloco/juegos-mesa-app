@@ -1,16 +1,17 @@
 # 🎮 Juegos de Grupo - Plataforma Web
 
-Plataforma para jugar **Blanco**, **El Lobo**, **Código Secreto** y **Quick Stop** en grupo desde cualquier dispositivo móvil.
+Plataforma para jugar **Blanco**, **El Lobo**, **Código Secreto**, **Quick Stop** y **Love Letter** en grupo desde cualquier dispositivo móvil.
 
 ## 🎯 Características
 
 - 🔥 **Backend con Firebase** - Sincronización en tiempo real entre dispositivos
 - 📱 **Móvil-friendly** - Diseño responsive optimizado para móviles
-- 🎲 **Cuatro juegos incluidos**:
+- 🎲 **Cinco juegos incluidos**:
   - **Blanco**: Descubre quién no tiene la palabra secreta
   - **El Lobo**: Aldeanos vs Lobos - ¿quién sobrevivirá?
   - **Código Secreto (Codenames)**: Equipos compiten encontrando agentes
   - **Quick Stop (Basta!)**: Completa categorías con la letra indicada
+  - **Love Letter**: Juego de deducción y faroleo con cartas
 - 🔒 **Salas privadas** - Código único de 4 caracteres para cada sala
 - ⏱️ **Auto-limpieza** - Las salas se borran automáticamente después de 24 horas
 - 🆓 **100% Gratis** - Firebase tiene plan gratuito generoso
@@ -79,7 +80,7 @@ Para producción, actualiza las reglas en **Realtime Database → Reglas**:
 
 1. **El organizador**:
    - Selecciona "Crear Nueva Sala"
-   - Elige el juego (Blanco, Lobo, Código Secreto o Quick Stop)
+   - Elige el juego (Blanco, Lobo, Código Secreto, Quick Stop o Love Letter)
    - Configura el juego según sea necesario
    - Comparte el código de sala de 4 caracteres
 
@@ -198,6 +199,21 @@ Esta aplicación usa **Firebase Realtime Database**, que ofrece:
    - Sin respuesta: **0 puntos**
 6. Se juegan varias rondas y gana quien tenga más puntos totales
 
+### 💌 Love Letter
+1. Cada jugador comienza con 1 carta en su mano
+2. En tu turno: robas 1 carta y luego juegas 1 carta
+3. Cada carta tiene un efecto especial:
+   - **Guardia (1)**: Adivina la carta de un jugador
+   - **Sacerdote (2)**: Mira la carta de un jugador
+   - **Barón (3)**: Compara tu carta con otro jugador
+   - **Doncella (4)**: Estás protegido hasta tu próximo turno
+   - **Príncipe (5)**: Un jugador descarta y roba una nueva carta
+   - **Rey (6)**: Intercambia tu carta con otro jugador
+   - **Condesa (7)**: Debes jugarla si tienes Rey o Príncipe
+   - **Princesa (8)**: Si la descartas, quedas eliminado
+4. Gana la ronda el último jugador en pie o quien tenga la carta más alta
+5. El primer jugador en alcanzar los puntos objetivo gana la partida
+
 ## 📱 Compatibilidad
 
 - ✅ Chrome (Android/iOS)
@@ -240,3 +256,15 @@ Ideas futuras:
 - Among Us (versión física)
 - Resistencia
 - Secret Hitler
+
+---
+
+## 💌 Love Letter - Integración
+
+**NOTA**: Love Letter está implementado pero requiere integración manual en `index.html`. 
+
+Sigue las instrucciones en `LOVE-LETTER-INTEGRATION.md` para añadir el juego completo.
+
+Archivos:
+- `loveletter-implementation.js` - Código completo del juego
+- `LOVE-LETTER-INTEGRATION.md` - Guía paso a paso para integrar
