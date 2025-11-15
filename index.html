@@ -8,6 +8,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -29,7 +30,7 @@
             background: white;
             border-radius: 20px;
             padding: 30px;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
@@ -120,6 +121,11 @@
             border-color: #667eea;
         }
 
+        input:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+
         textarea {
             resize: vertical;
             min-height: 80px;
@@ -177,61 +183,14 @@
             font-size: 14px;
         }
 
-        .role-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 20px 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .role-card h2 {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
-
-        .role-card .word {
-            font-size: 40px;
-            font-weight: bold;
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-        }
-
-        .role-card.blanco {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .role-card.lobo {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            color: #333;
-        }
-
-        .player-list {
-            background: #f8f9fa;
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
             padding: 15px;
-            border-radius: 10px;
+            border-radius: 8px;
             margin: 15px 0;
-        }
-
-        .player-list h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .player-list ul {
-            list-style: none;
-        }
-
-        .player-list li {
-            padding: 8px;
-            background: white;
-            margin: 5px 0;
-            border-radius: 5px;
-            border-left: 4px solid #667eea;
+            color: #0c5460;
+            font-size: 14px;
         }
 
         .warning {
@@ -243,32 +202,54 @@
             color: #856404;
         }
 
-        .info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            color: #0c5460;
-            font-size: 14px;
-        }
-
         .hidden {
             display: none !important;
         }
 
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .board-card {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e0e0e0;
+            font-weight: bold;
+            font-size: 13px;
+            word-break: break-word;
+        }
+
         @media (max-width: 480px) {
             .container {
-                padding: 20px;
+                padding: 15px;
+                max-width: 100%;
             }
             
             h1 {
-                font-size: 24px;
+                font-size: 22px;
             }
             
             .code-display .code {
                 font-size: 36px;
                 letter-spacing: 4px;
+            }
+            
+            .game-board {
+                gap: 5px;
+            }
+            
+            .board-card {
+                padding: 8px;
+                min-height: 45px;
+                font-size: 11px;
             }
         }
     </style>
@@ -309,6 +290,7 @@
                 </div>
             </div>
 
+            <!-- Configuración Blanco -->
             <div id="blancoConfig" class="hidden">
                 <label>Palabra Secreta:</label>
                 <input type="text" id="secretWord" placeholder="Ej: Pizza">
@@ -318,6 +300,7 @@
                 </div>
             </div>
 
+            <!-- Configuración Quick Stop -->
             <div id="quickstopConfig" class="hidden">
                 <label>Número de Rondas:</label>
                 <input type="number" id="numRounds" value="5" min="1" max="20">
@@ -331,7 +314,7 @@
             <textarea id="playerNames" placeholder="Juan, María, Pedro, Ana"></textarea>
             
             <div class="info">
-                ℹ️ Mínimo 3 jugadores recomendado
+                ℹ️ Mínimo 3 jugadores para Blanco/Lobo, 4 para Código Secreto
             </div>
 
             <div class="btn" onclick="createGame()">Crear Sala</div>
@@ -347,16 +330,15 @@
                 <p>Comparte este código con los jugadores</p>
             </div>
 
-            <div class="player-list">
-                <h3>Jugadores en esta sala:</h3>
-                <ul id="playerListDisplay"></ul>
+            <div class="info">
+                💡 Ahora puedes unirte a tu propia sala introduciendo tu nombre y el código
             </div>
 
-            <div class="warning">
-                ⚠️ Cada jugador debe entrar con su nombre y el código de sala para ver su rol
-            </div>
+            <label>Tu Nombre (para unirte):</label>
+            <input type="text" id="creatorName" placeholder="Tu nombre">
 
-            <div class="btn" onclick="showHome()">Crear Nueva Sala</div>
+            <div class="btn" onclick="creatorJoinGame()">Unirme a la Sala</div>
+            <div class="btn btn-secondary" onclick="showHome()">Crear Nueva Sala</div>
         </div>
 
         <!-- Pantalla: Unirse a Sala -->
@@ -370,17 +352,14 @@
             <label>Código de Sala:</label>
             <input type="text" id="roomCodeInput" placeholder="Ej: A1B2" maxlength="4" style="text-transform: uppercase;">
 
-            <div class="btn" onclick="joinGame()">Ver Mi Rol</div>
+            <div class="btn" onclick="joinGame()">Entrar al Juego</div>
             <div class="btn btn-secondary" onclick="showHome()">Volver</div>
         </div>
 
-        <!-- Pantalla: Ver Rol -->
-        <div id="roleScreen" class="screen">
-            <h1>Tu Rol</h1>
-            
-            <div id="roleDisplay"></div>
-
-            <div class="btn" onclick="showHome()">Salir</div>
+        <!-- Pantalla: Juego Activo -->
+        <div id="gameScreen" class="screen">
+            <div id="gameContent"></div>
+            <div class="btn btn-secondary" onclick="showHome()">Salir</div>
         </div>
     </div>
 
@@ -399,10 +378,15 @@
         function showHome() {
             selectedGame = null;
             currentRoom = null;
+            if (roomRef) {
+                roomRef.off();
+                roomRef = null;
+            }
             document.getElementById('playerNames').value = '';
             document.getElementById('secretWord').value = '';
             document.getElementById('playerName').value = '';
             document.getElementById('roomCodeInput').value = '';
+            document.getElementById('playerNames').disabled = false;
             showScreen('homeScreen');
         }
 
@@ -432,7 +416,7 @@
                 document.getElementById('quickstopConfig').classList.remove('hidden');
             }
             
-            // Quick Stop y Código Secreto no necesitan lista de jugadores inicial
+            // Quick Stop no necesita lista de jugadores
             if (game === 'quickstop') {
                 document.getElementById('playerNames').value = 'No requerido';
                 document.getElementById('playerNames').disabled = true;
@@ -444,14 +428,24 @@
             }
         }
 
+        // Generar código de sala único
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 4; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
         // Crear sala
-        function createGame() {
+        async function createGame() {
             if (!selectedGame) {
                 alert('Por favor selecciona un juego');
                 return;
             }
 
-            // Quick Stop no requiere jugadores
+            // Validar jugadores
             let players = [];
             if (selectedGame !== 'quickstop') {
                 const playerNamesInput = document.getElementById('playerNames').value.trim();
@@ -481,95 +475,122 @@
                 }
             }
 
-            // Generar código de sala único
+            // Generar código de sala
             const roomCode = generateRoomCode();
             
-            // Asignar roles
+            // Crear sala en Firebase
             const room = {
                 code: roomCode,
                 game: selectedGame,
-                players: [],
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                status: 'waiting'
             };
 
+            // Configurar según el juego
             if (selectedGame === 'blanco') {
                 room.secretWord = document.getElementById('secretWord').value.trim();
                 const blancoIndex = Math.floor(Math.random() * players.length);
                 
+                room.players = {};
                 players.forEach((name, index) => {
-                    room.players.push({
-                        name: name,
+                    room.players[name] = {
                         role: index === blancoIndex ? 'blanco' : 'normal',
                         word: index === blancoIndex ? 'BLANCO' : room.secretWord
-                    });
+                    };
                 });
             } else if (selectedGame === 'lobo') {
                 const numLobos = Math.max(1, Math.floor(players.length / 4));
                 const roles = ['lobo'].concat(Array(players.length - numLobos).fill('aldeano'));
                 shuffleArray(roles);
                 
+                room.players = {};
                 players.forEach((name, index) => {
-                    room.players.push({
-                        name: name,
+                    room.players[name] = {
                         role: roles[index]
-                    });
+                    };
                 });
+            } else if (selectedGame === 'codigo') {
+                room.players = {};
+                room.board = generateCodigoSecretoBoard();
+                room.currentTeam = 'rojo';
+                
+                // Dividir jugadores en equipos
+                shuffleArray(players);
+                const half = Math.floor(players.length / 2);
+                players.forEach((name, index) => {
+                    room.players[name] = {
+                        team: index < half ? 'rojo' : 'azul',
+                        role: index === 0 ? 'spymaster' : (index === half ? 'spymaster' : 'operative')
+                    };
+                });
+            } else if (selectedGame === 'quickstop') {
+                room.numRounds = parseInt(document.getElementById('numRounds').value) || 5;
+                room.currentRound = 1;
+                room.currentLetter = null;
+                room.categories = ['Nombre', 'Animal', 'Ciudad', 'Objeto', 'Comida', 'Color'];
+                room.players = {};
             }
 
-            // Guardar en localStorage
-            saveRoom(room);
-            currentRoom = room;
-
-            // Mostrar pantalla de lobby
-            displayLobby(room);
-        }
-
-        function generateRoomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 4; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            
-            // Verificar que no exista
-            if (localStorage.getItem('room_' + code)) {
-                return generateRoomCode();
-            }
-            
-            return code;
-        }
-
-        function saveRoom(room) {
-            localStorage.setItem('room_' + room.code, JSON.stringify(room));
-            
-            // Limpiar salas antiguas (más de 24 horas)
-            const now = Date.now();
-            for (let key in localStorage) {
-                if (key.startsWith('room_')) {
-                    const data = JSON.parse(localStorage.getItem(key));
-                    if (now - data.createdAt > 24 * 60 * 60 * 1000) {
-                        localStorage.removeItem(key);
-                    }
-                }
+            // Guardar en Firebase
+            try {
+                await database.ref('rooms/' + roomCode).set(room);
+                currentRoom = room;
+                displayLobby(roomCode);
+                
+                // Auto-eliminar sala después de 24 horas
+                setTimeout(async () => {
+                    await database.ref('rooms/' + roomCode).remove();
+                }, 24 * 60 * 60 * 1000);
+            } catch (error) {
+                alert('Error al crear sala: ' + error.message);
             }
         }
 
-        function displayLobby(room) {
-            document.getElementById('roomCode').textContent = room.code;
-            
-            const playerList = document.getElementById('playerListDisplay');
-            playerList.innerHTML = '';
-            room.players.forEach(player => {
-                const li = document.createElement('li');
-                li.textContent = player.name;
-                playerList.appendChild(li);
-            });
-
+        function displayLobby(roomCode) {
+            document.getElementById('roomCode').textContent = roomCode;
+            document.getElementById('creatorName').value = '';
             showScreen('lobbyScreen');
         }
 
+        // Creador se une a su propia sala
+        async function creatorJoinGame() {
+            const playerName = document.getElementById('creatorName').value.trim();
+            const roomCode = document.getElementById('roomCode').textContent;
+
+            if (!playerName) {
+                alert('Por favor introduce tu nombre');
+                return;
+            }
+
+            // Buscar sala en Firebase
+            try {
+                const snapshot = await database.ref('rooms/' + roomCode).once('value');
+                const room = snapshot.val();
+                
+                if (!room) {
+                    alert('Error: Sala no encontrada');
+                    return;
+                }
+
+                currentRoom = room;
+                currentRoom.code = roomCode;
+                roomRef = database.ref('rooms/' + roomCode);
+
+                // Jugar según el tipo de juego
+                if (room.game === 'quickstop') {
+                    playQuickStop(roomCode, playerName);
+                } else if (room.game === 'codigo') {
+                    playCodigoSecreto(roomCode, playerName, room);
+                } else if (room.game === 'blanco' || room.game === 'lobo') {
+                    showRole(room, playerName);
+                }
+            } catch (error) {
+                alert('Error al unirse: ' + error.message);
+            }
+        }
+
         // Unirse a sala
-        function joinGame() {
+        async function joinGame() {
             const playerName = document.getElementById('playerName').value.trim();
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
 
@@ -583,67 +604,80 @@
                 return;
             }
 
-            // Buscar sala
-            const roomData = localStorage.getItem('room_' + roomCode);
-            if (!roomData) {
-                alert('Sala no encontrada. Verifica el código.');
-                return;
-            }
+            // Buscar sala en Firebase
+            try {
+                const snapshot = await database.ref('rooms/' + roomCode).once('value');
+                const room = snapshot.val();
+                
+                if (!room) {
+                    alert('Sala no encontrada. Verifica el código.');
+                    return;
+                }
 
-            const room = JSON.parse(roomData);
+                currentRoom = room;
+                currentRoom.code = roomCode;
+                roomRef = database.ref('rooms/' + roomCode);
+
+                // Jugar según el tipo de juego
+                if (room.game === 'quickstop') {
+                    playQuickStop(roomCode, playerName);
+                } else if (room.game === 'codigo') {
+                    playCodigoSecreto(roomCode, playerName, room);
+                } else if (room.game === 'blanco' || room.game === 'lobo') {
+                    showRole(room, playerName);
+                }
+            } catch (error) {
+                alert('Error al unirse: ' + error.message);
+            }
+        }
+
+        function showRole(room, playerName) {
+            const gameContent = document.getElementById('gameContent');
             
-            // Buscar jugador
-            const player = room.players.find(p => p.name.toLowerCase() === playerName.toLowerCase());
-            
-            if (!player) {
+            if (!room.players[playerName]) {
                 alert('Tu nombre no está en la lista de jugadores de esta sala');
                 return;
             }
 
-            // Mostrar rol
-            displayRole(room, player);
-        }
+            const player = room.players[playerName];
 
-        function displayRole(room, player) {
-            const roleDisplay = document.getElementById('roleDisplay');
-            
             if (room.game === 'blanco') {
                 if (player.role === 'blanco') {
-                    roleDisplay.innerHTML = `
-                        <div class="role-card blanco">
-                            <h2>¡Eres el BLANCO!</h2>
-                            <div class="word">❓ BLANCO</div>
+                    gameContent.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 40px; border-radius: 15px; text-align: center;">
+                            <h2 style="font-size: 32px; margin-bottom: 15px;">¡Eres el BLANCO!</h2>
+                            <div style="font-size: 40px; font-weight: bold; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px;">❓ BLANCO</div>
                             <p>No tienes palabra. Debes adivinar cuál es la palabra secreta sin que te descubran.</p>
                             <p>💡 Disimula y trata de integrarte en la conversación</p>
                         </div>
                     `;
                 } else {
-                    roleDisplay.innerHTML = `
-                        <div class="role-card">
-                            <h2>Tu Palabra es:</h2>
-                            <div class="word">${player.word}</div>
+                    gameContent.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px; text-align: center;">
+                            <h2 style="font-size: 32px; margin-bottom: 15px;">Tu Palabra es:</h2>
+                            <div style="font-size: 40px; font-weight: bold; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px;">${player.word}</div>
                             <p>Hay un jugador que es el BLANCO y no tiene esta palabra.</p>
                             <p>💡 Habla sobre la palabra sin decirla directamente</p>
                         </div>
                     `;
                 }
             } else if (room.game === 'lobo') {
-                const lobos = room.players.filter(p => p.role === 'lobo').map(p => p.name);
+                const lobos = Object.keys(room.players).filter(name => room.players[name].role === 'lobo');
                 
                 if (player.role === 'lobo') {
-                    roleDisplay.innerHTML = `
-                        <div class="role-card lobo">
-                            <h2>🐺 Eres un LOBO</h2>
-                            <div class="word">LOBO</div>
-                            <p><strong>Otros lobos:</strong> ${lobos.filter(n => n !== player.name).join(', ') || 'Ninguno (eres el único)'}</p>
+                    gameContent.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #333; padding: 40px; border-radius: 15px; text-align: center;">
+                            <h2 style="font-size: 32px; margin-bottom: 15px;">🐺 Eres un LOBO</h2>
+                            <div style="font-size: 40px; font-weight: bold; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.3); border-radius: 10px;">LOBO</div>
+                            <p><strong>Otros lobos:</strong> ${lobos.filter(n => n !== playerName).join(', ') || 'Ninguno (eres el único)'}</p>
                             <p>💡 Elimina a los aldeanos sin que te descubran</p>
                         </div>
                     `;
                 } else {
-                    roleDisplay.innerHTML = `
-                        <div class="role-card">
-                            <h2>👥 Eres un ALDEANO</h2>
-                            <div class="word">ALDEANO</div>
+                    gameContent.innerHTML = `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px; text-align: center;">
+                            <h2 style="font-size: 32px; margin-bottom: 15px;">👥 Eres un ALDEANO</h2>
+                            <div style="font-size: 40px; font-weight: bold; margin: 20px 0; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px;">ALDEANO</div>
                             <p>Debes identificar y eliminar a los lobos antes de que te eliminen.</p>
                             <p>💡 Observa el comportamiento de los demás</p>
                         </div>
@@ -651,9 +685,164 @@
                 }
             }
 
-            showScreen('roleScreen');
+            showScreen('gameScreen');
         }
 
+        // Código Secreto - Generar tablero
+        function generateCodigoSecretoBoard() {
+            const words = [
+                'Casa', 'Perro', 'Playa', 'Libro', 'Café', 'Luna', 'Piano', 'Reloj', 'Jardín', 'Puente',
+                'Montaña', 'Estrella', 'Fuego', 'Nube', 'Robot', 'Árbol', 'Mar', 'Luz', 'Sombra', 'Viento',
+                'Río', 'Flores', 'Nieve', 'Torre', 'Dragón'
+            ];
+            
+            shuffleArray(words);
+            const board = [];
+            const roles = ['rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo',
+                          'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul',
+                          'inocente', 'inocente', 'inocente', 'inocente', 'inocente', 'inocente', 'inocente',
+                          'asesino'];
+            shuffleArray(roles);
+            
+            for (let i = 0; i < 25; i++) {
+                board.push({
+                    word: words[i],
+                    role: roles[i],
+                    revealed: false
+                });
+            }
+            
+            return board;
+        }
+
+        function playCodigoSecreto(roomCode, playerName, room) {
+            const gameContent = document.getElementById('gameContent');
+            const player = room.players[playerName];
+            
+            if (!player) {
+                alert('No estás registrado en esta partida');
+                return;
+            }
+
+            let html = `
+                <h2 style="text-align: center; color: #667eea; margin-bottom: 20px;">🔐 Código Secreto</h2>
+                <div style="background: ${player.team === 'rojo' ? '#ff6b6b' : '#4dabf7'}; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 20px;">
+                    <strong>Equipo: ${player.team.toUpperCase()}</strong><br>
+                    Rol: ${player.role === 'spymaster' ? 'SPYMASTER (ves todo el tablero)' : 'OPERATIVE (adivina palabras)'}
+                </div>
+                <div class="game-board">
+            `;
+
+            room.board.forEach((card, index) => {
+                const showRole = player.role === 'spymaster';
+                const bgColor = card.revealed ? 
+                    (card.role === 'rojo' ? '#ff6b6b' : 
+                     card.role === 'azul' ? '#4dabf7' : 
+                     card.role === 'asesino' ? '#000' : '#adb5bd') :
+                    (showRole ? 
+                        (card.role === 'rojo' ? '#ff6b6b80' : 
+                         card.role === 'azul' ? '#4dabf780' : 
+                         card.role === 'asesino' ? '#00000080' : '#adb5bd80') : 
+                        '#fff');
+                
+                html += `
+                    <div class="board-card" style="background: ${bgColor}; color: ${bgColor.includes('#000') ? 'white' : '#333'};">
+                        ${card.word}
+                    </div>
+                `;
+            });
+
+            html += `</div>
+                <div class="info">
+                    ${player.role === 'spymaster' ? 
+                        '💡 Da pistas de UNA palabra + número (ej: "animales 3")' : 
+                        '💡 Escucha a tu spymaster y adivina las palabras de tu equipo'}
+                </div>
+            `;
+
+            gameContent.innerHTML = html;
+            showScreen('gameScreen');
+        }
+
+        // Quick Stop
+        function playQuickStop(roomCode, playerName) {
+            const gameContent = document.getElementById('gameContent');
+            
+            roomRef.on('value', (snapshot) => {
+                const room = snapshot.val();
+                if (!room) return;
+
+                if (!room.players[playerName]) {
+                    database.ref(`rooms/${roomCode}/players/${playerName}`).set({
+                        score: 0,
+                        answers: {}
+                    });
+                }
+
+                if (!room.currentLetter) {
+                    // Esperando inicio de ronda
+                    gameContent.innerHTML = `
+                        <h2 style="text-align: center; color: #667eea;">🏃 Quick Stop</h2>
+                        <div style="text-align: center; padding: 40px;">
+                            <h3>Ronda ${room.currentRound} de ${room.numRounds}</h3>
+                            <p style="margin: 20px 0;">Esperando que comience la ronda...</p>
+                            ${Object.keys(room.players)[0] === playerName ? 
+                                '<div class="btn" onclick="startQuickStopRound()">Iniciar Ronda</div>' : 
+                                '<p style="color: #666;">El primer jugador iniciará la ronda</p>'}
+                        </div>
+                    `;
+                } else {
+                    // Jugando
+                    let html = `
+                        <h2 style="text-align: center; color: #667eea;">🏃 Quick Stop - Ronda ${room.currentRound}</h2>
+                        <div style="background: #667eea; color: white; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0;">
+                            <h1 style="font-size: 72px; margin: 0;">Letra: ${room.currentLetter}</h1>
+                        </div>
+                        <form onsubmit="submitQuickStopAnswers(event)">
+                    `;
+
+                    room.categories.forEach((cat, index) => {
+                        html += `
+                            <label>${cat}:</label>
+                            <input type="text" id="cat_${index}" placeholder="Palabra con ${room.currentLetter}..." required>
+                        `;
+                    });
+
+                    html += `
+                            <div class="btn" onclick="submitQuickStopAnswers(event)">¡STOP!</div>
+                        </form>
+                    `;
+
+                    gameContent.innerHTML = html;
+                }
+            });
+
+            showScreen('gameScreen');
+        }
+
+        function startQuickStopRound() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+            
+            database.ref(`rooms/${currentRoom.code}/currentLetter`).set(randomLetter);
+        }
+
+        async function submitQuickStopAnswers(event) {
+            event.preventDefault();
+            
+            const playerName = document.getElementById('playerName').value.trim();
+            const answers = {};
+            
+            currentRoom.categories.forEach((cat, index) => {
+                answers[cat] = document.getElementById(`cat_${index}`).value.trim();
+            });
+
+            await database.ref(`rooms/${currentRoom.code}/players/${playerName}/answers/round${currentRoom.currentRound}`).set(answers);
+            
+            alert('¡Respuestas enviadas! Espera a que todos terminen para ver los resultados.');
+        }
+
+        // Utilidades
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
