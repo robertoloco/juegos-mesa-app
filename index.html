@@ -257,73 +257,6 @@
             display: none !important;
         }
 
-        .love-letter-card {
-            background: white;
-            border: 3px solid #667eea;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .love-letter-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-        }
-
-        .love-letter-card.selected {
-            border-color: #ffd700;
-            background: #fffbea;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-
-        .love-letter-card.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            filter: grayscale(1);
-        }
-
-        .card-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .card-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 8px 0;
-            color: #333;
-        }
-
-        .card-effect {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.4;
-        }
-
-        .player-item {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            margin: 5px 0;
-        }
-
-        .player-item.eliminated {
-            opacity: 0.5;
-            border-left-color: #dc3545;
-            text-decoration: line-through;
-        }
-
-        .player-item.current-turn {
-            background: #e7f3ff;
-            border-left-color: #ffd700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-        }
-
         @media (max-width: 480px) {
             .container {
                 padding: 20px;
@@ -374,10 +307,6 @@
                     <h3>🏃 Quick Stop</h3>
                     <p>Completa categorías con palabras que empiecen con la letra indicada. ¡El más rápido gana!</p>
                 </div>
-                <div class="game-card" onclick="selectGame('loveletter')">
-                    <h3>💌 Love Letter</h3>
-                    <p>Juego de deducción y faroleo. Sé el último en pie o termina con la carta más alta.</p>
-                </div>
             </div>
 
             <div id="blancoConfig" class="hidden">
@@ -398,20 +327,11 @@
                 </div>
             </div>
 
-            <div id="loveletterConfig" class="hidden">
-                <label>Puntos para Ganar:</label>
-                <input type="number" id="pointsToWin" value="4" min="2" max="10">
-                
-                <div class="info">
-                    💡 Cada ronda ganada otorga 1 punto. El primer jugador en alcanzar este número gana la partida.
-                </div>
-            </div>
-
             <label>Nombres de Jugadores (separados por coma):</label>
             <textarea id="playerNames" placeholder="Juan, María, Pedro, Ana"></textarea>
             
             <div class="info">
-                ℹ️ Mínimo 3 jugadores para Blanco/Lobo, 4 para Código Secreto, 2-4 para Love Letter
+                ℹ️ Mínimo 3 jugadores recomendado
             </div>
 
             <div class="btn" onclick="createGame()">Crear Sala</div>
@@ -505,14 +425,11 @@
             // Mostrar/ocultar configuración específica
             document.getElementById('blancoConfig').classList.add('hidden');
             document.getElementById('quickstopConfig').classList.add('hidden');
-            document.getElementById('loveletterConfig').classList.add('hidden');
             
             if (game === 'blanco') {
                 document.getElementById('blancoConfig').classList.remove('hidden');
             } else if (game === 'quickstop') {
                 document.getElementById('quickstopConfig').classList.remove('hidden');
-            } else if (game === 'loveletter') {
-                document.getElementById('loveletterConfig').classList.remove('hidden');
             }
             
             // Quick Stop y Código Secreto no necesitan lista de jugadores inicial
@@ -545,18 +462,13 @@
 
                 players = playerNamesInput.split(',').map(name => name.trim()).filter(name => name);
                 
-                if (players.length < 3 && selectedGame !== 'codigo' && selectedGame !== 'loveletter') {
+                if (players.length < 3 && selectedGame !== 'codigo') {
                     alert('Se necesitan mínimo 3 jugadores');
                     return;
                 }
                 
                 if (players.length < 4 && selectedGame === 'codigo') {
                     alert('Código Secreto necesita mínimo 4 jugadores (2 por equipo)');
-                    return;
-                }
-                
-                if ((players.length < 2 || players.length > 4) && selectedGame === 'loveletter') {
-                    alert('Love Letter necesita entre 2 y 4 jugadores');
                     return;
                 }
             }
@@ -600,24 +512,6 @@
                     room.players.push({
                         name: name,
                         role: roles[index]
-                    });
-                });
-            } else if (selectedGame === 'loveletter') {
-                room.pointsToWin = parseInt(document.getElementById('pointsToWin').value) || 4;
-                room.currentRound = 1;
-                room.deck = [];
-                room.discardPile = [];
-                room.currentTurnIndex = 0;
-                room.roundInProgress = false;
-                room.playerOrder = players;
-                
-                players.forEach((name) => {
-                    room.players.push({
-                        name: name,
-                        hand: [],
-                        score: 0,
-                        eliminated: false,
-                        protected: false
                     });
                 });
             }
@@ -701,17 +595,13 @@
             // Buscar jugador
             const player = room.players.find(p => p.name.toLowerCase() === playerName.toLowerCase());
             
-            if (!player && room.game !== 'loveletter') {
+            if (!player) {
                 alert('Tu nombre no está en la lista de jugadores de esta sala');
                 return;
             }
 
-            // Mostrar rol o juego
-            if (room.game === 'loveletter') {
-                playLoveLetter(roomCode, playerName, room);
-            } else {
-                displayRole(room, player);
-            }
+            // Mostrar rol
+            displayRole(room, player);
         }
 
         function displayRole(room, player) {
@@ -759,10 +649,6 @@
                         </div>
                     `;
                 }
-            } else if (room.game === 'loveletter') {
-                // Love Letter se maneja con playLoveLetter
-                playLoveLetter(room.code, player.name, room);
-                return;
             }
 
             showScreen('roleScreen');
@@ -773,398 +659,6 @@
                 const j = Math.floor(Math.random() * (i + 1));
                 [array[i], array[j]] = [array[j], array[i]];
             }
-        }
-
-        // ============================================
-        // LOVE LETTER - Implementación completa
-        // ============================================
-
-        const LOVE_LETTER_CARDS = {
-            1: { name: 'Guardia', count: 5, effect: 'Elige un jugador y nombra una carta (excepto Guardia). Si tiene esa carta, queda eliminado.' },
-            2: { name: 'Sacerdote', count: 2, effect: 'Mira la mano de otro jugador.' },
-            3: { name: 'Barón', count: 2, effect: 'Compara tu mano con otro jugador. El que tenga el número más bajo queda eliminado.' },
-            4: { name: 'Doncella', count: 2, effect: 'Estás protegido hasta tu próximo turno.' },
-            5: { name: 'Príncipe', count: 2, effect: 'Elige un jugador (puedes elegirte a ti). Ese jugador descarta su mano y roba una nueva carta.' },
-            6: { name: 'Rey', count: 1, effect: 'Intercambia tu mano con otro jugador.' },
-            7: { name: 'Condesa', count: 1, effect: 'Si tienes Rey o Príncipe en tu mano, DEBES jugar esta carta.' },
-            8: { name: 'Princesa', count: 1, effect: 'Si descartas esta carta, quedas eliminado.' }
-        };
-
-        function createLoveLetterDeck() {
-            const deck = [];
-            for (let value = 1; value <= 8; value++) {
-                const card = LOVE_LETTER_CARDS[value];
-                for (let i = 0; i < card.count; i++) {
-                    deck.push({ value, name: card.name, effect: card.effect });
-                }
-            }
-            shuffleArray(deck);
-            return deck;
-        }
-
-        function startLoveLetterRound(roomCode) {
-            const roomData = localStorage.getItem('room_' + roomCode);
-            const room = JSON.parse(roomData);
-            
-            const deck = createLoveLetterDeck();
-            const removedCard = deck.pop();
-            
-            room.deck = deck;
-            room.discardPile = [];
-            room.removedCard = removedCard;
-            room.currentTurnIndex = 0;
-            room.roundInProgress = true;
-            room.waitingForAction = null;
-            
-            room.players.forEach(player => {
-                player.hand = [deck.pop()];
-                player.eliminated = false;
-                player.protected = false;
-            });
-            
-            saveRoom(room);
-            playLoveLetter(roomCode, document.getElementById('playerName').value.trim(), room);
-        }
-
-        function playLoveLetter(roomCode, playerName, room) {
-            const roleDisplay = document.getElementById('roleDisplay');
-            const player = room.players.find(p => p.name === playerName);
-            
-            if (!player) {
-                player = { name: playerName, hand: [], score: 0, eliminated: false, protected: false };
-                room.players.push(player);
-                saveRoom(room);
-            }
-            
-            const currentPlayer = room.playerOrder[room.currentTurnIndex];
-            const isMyTurn = currentPlayer === playerName;
-            
-            const winner = room.players.find(p => p.score >= room.pointsToWin);
-            if (winner) {
-                roleDisplay.innerHTML = `
-                    <h2 style="text-align: center; color: #667eea;">💌 Love Letter - Fin de la Partida</h2>
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px; text-align: center; margin: 20px 0;">
-                        <h1 style="font-size: 48px; margin: 0;">🏆 ${winner.name} GANA!</h1>
-                        <p style="margin-top: 20px; font-size: 18px;">${winner.score} puntos</p>
-                    </div>
-                    ${renderScoreboard(room)}
-                `;
-                showScreen('roleScreen');
-                return;
-            }
-            
-            if (!room.roundInProgress) {
-                roleDisplay.innerHTML = `
-                    <h2 style="text-align: center; color: #667eea;">💌 Love Letter - Ronda ${room.currentRound}</h2>
-                    ${renderScoreboard(room)}
-                    <div style="text-align: center; margin: 30px 0;">
-                        <p>Puntos para ganar: ${room.pointsToWin}</p>
-                        ${room.playerOrder[0] === playerName ? 
-                            '<div class="btn" onclick="startLoveLetterRound(\'' + roomCode + '\')">Iniciar Ronda</div>' :
-                            '<p style="color: #666;">Esperando que el primer jugador inicie la ronda...</p>'}
-                    </div>
-                    <div class="btn btn-secondary" onclick="refreshLoveLetter(\'' + roomCode + '\', \'' + playerName + '\')">Refrescar</div>
-                `;
-                showScreen('roleScreen');
-                return;
-            }
-            
-            const activePlayers = room.playerOrder.filter(name => {
-                const p = room.players.find(pl => pl.name === name);
-                return p && !p.eliminated;
-            });
-            
-            if (activePlayers.length === 1) {
-                const roundWinner = activePlayers[0];
-                roleDisplay.innerHTML = `
-                    <h2 style="text-align: center; color: #667eea;">💌 Fin de Ronda ${room.currentRound}</h2>
-                    <div style="background: #fffbea; border: 3px solid #ffd700; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0;">
-                        <h1 style="font-size: 36px; color: #667eea;">${roundWinner} gana la ronda!</h1>
-                        <p>Era el último jugador en pie</p>
-                    </div>
-                    ${renderScoreboard(room)}
-                    ${playerName === room.playerOrder[0] ? 
-                        '<div class="btn" onclick="endLoveLetterRound(\'' + roomCode + '\', \'' + roundWinner + '\')">Continuar a Siguiente Ronda</div>' :
-                        '<p style="text-align: center; color: #666;">Esperando que el primer jugador continúe...</p>'}
-                    <div class="btn btn-secondary" onclick="refreshLoveLetter(\'' + roomCode + '\', \'' + playerName + '\')">Refrescar</div>
-                `;
-                showScreen('roleScreen');
-                return;
-            }
-            
-            if (room.deck && room.deck.length === 0) {
-                let highestValue = 0;
-                let roundWinner = null;
-                
-                activePlayers.forEach(name => {
-                    const p = room.players.find(pl => pl.name === name);
-                    if (p && p.hand && p.hand.length > 0) {
-                        if (p.hand[0].value > highestValue) {
-                            highestValue = p.hand[0].value;
-                            roundWinner = name;
-                        }
-                    }
-                });
-                
-                roleDisplay.innerHTML = `
-                    <h2 style="text-align: center; color: #667eea;">💌 Fin de Ronda ${room.currentRound}</h2>
-                    <div style="background: #fffbea; border: 3px solid #ffd700; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0;">
-                        <h1 style="font-size: 36px; color: #667eea;">${roundWinner} gana la ronda!</h1>
-                        <p>Tenía la carta más alta: ${LOVE_LETTER_CARDS[highestValue].name} (${highestValue})</p>
-                    </div>
-                    ${renderScoreboard(room)}
-                    ${playerName === room.playerOrder[0] ? 
-                        '<div class="btn" onclick="endLoveLetterRound(\'' + roomCode + '\', \'' + roundWinner + '\')">Continuar a Siguiente Ronda</div>' :
-                        '<p style="text-align: center; color: #666;">Esperando que el primer jugador continúe...</p>'}
-                    <div class="btn btn-secondary" onclick="refreshLoveLetter(\'' + roomCode + '\', \'' + playerName + '\')">Refrescar</div>
-                `;
-                showScreen('roleScreen');
-                return;
-            }
-            
-            let html = `
-                <h2 style="text-align: center; color: #667eea;">💌 Love Letter - Ronda ${room.currentRound}</h2>
-                <div style="background: ${isMyTurn ? '#e7f3ff' : '#f8f9fa'}; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
-                    <strong>Turno de: ${currentPlayer}</strong> ${isMyTurn ? '(TÚ)' : ''}
-                    <br><small>Cartas en el mazo: ${room.deck ? room.deck.length : 0}</small>
-                </div>
-                <div style="margin-bottom: 15px;">
-            `;
-            
-            room.playerOrder.forEach(name => {
-                const p = room.players.find(pl => pl.name === name);
-                if (p) {
-                    let className = 'player-item';
-                    if (p.eliminated) className += ' eliminated';
-                    if (name === currentPlayer && !p.eliminated) className += ' current-turn';
-                    
-                    html += `
-                        <div class="${className}">
-                            <strong>${name}</strong> ${name === playerName ? '(TÚ)' : ''}
-                            ${p.eliminated ? ' - ELIMINADO' : ''}
-                            ${p.protected && !p.eliminated ? ' 🛡️ Protegido' : ''}
-                            <br><small>Puntos: ${p.score}</small>
-                        </div>
-                    `;
-                }
-            });
-            html += '</div>';
-            
-            if (room.discardPile && room.discardPile.length > 0) {
-                html += '<div style="margin: 15px 0;"><strong>Descartes:</strong><div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;">';
-                room.discardPile.slice(-5).forEach(c => {
-                    html += `<span style="background: #e0e0e0; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${c.name} (${c.value})</span>`;
-                });
-                html += '</div></div>';
-            }
-            
-            if (!player.eliminated && player.hand) {
-                html += '<h3 style="margin-top: 20px;">Tu mano:</h3>';
-                player.hand.forEach((card, index) => {
-                    html += `
-                        <div class="love-letter-card">
-                            <div class="card-number">${card.value}</div>
-                            <div class="card-name">${card.name}</div>
-                            <div class="card-effect">${card.effect}</div>
-                        </div>
-                    `;
-                });
-                
-                if (isMyTurn && !room.waitingForAction) {
-                    html += '<div class="btn" onclick="drawLoveLetterCard(\'' + roomCode + '\', \'' + playerName + '\')">Robar Carta</div>';
-                } else if (isMyTurn && room.waitingForAction === 'chooseCard') {
-                    html += '<h3 style="margin-top: 20px;">Elige una carta para jugar:</h3>';
-                    player.hand.forEach((card, index) => {
-                        html += `<div class="btn" onclick="playLoveLetterCard(\'' + roomCode + '\', \'' + playerName + '\', ${index})">Jugar ${card.name} (${card.value})</div>`;
-                    });
-                }
-            }
-            
-            html += '<div class="btn btn-secondary" onclick="refreshLoveLetter(\'' + roomCode + '\', \'' + playerName + '\')">Refrescar</div>';
-            
-            roleDisplay.innerHTML = html;
-            showScreen('roleScreen');
-        }
-
-        function refreshLoveLetter(roomCode, playerName) {
-            const roomData = localStorage.getItem('room_' + roomCode);
-            const room = JSON.parse(roomData);
-            playLoveLetter(roomCode, playerName, room);
-        }
-
-        function renderScoreboard(room) {
-            let html = '<div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;"><h3 style="margin-bottom: 10px;">Puntuación:</h3>';
-            room.playerOrder.forEach(name => {
-                const p = room.players.find(pl => pl.name === name);
-                if (p) {
-                    html += `<div style="display: flex; justify-content: space-between; padding: 5px 0;"><span>${name}</span><span style="font-weight: bold;">${p.score} puntos</span></div>`;
-                }
-            });
-            html += '</div>';
-            return html;
-        }
-
-        function drawLoveLetterCard(roomCode, playerName) {
-            const roomData = localStorage.getItem('room_' + roomCode);
-            const room = JSON.parse(roomData);
-            
-            if (!room.deck || room.deck.length === 0) {
-                alert('No quedan cartas en el mazo');
-                return;
-            }
-            
-            const card = room.deck.pop();
-            const player = room.players.find(p => p.name === playerName);
-            player.hand.push(card);
-            room.waitingForAction = 'chooseCard';
-            
-            saveRoom(room);
-            playLoveLetter(roomCode, playerName, room);
-        }
-
-        function playLoveLetterCard(roomCode, playerName, cardIndex) {
-            const roomData = localStorage.getItem('room_' + roomCode);
-            const room = JSON.parse(roomData);
-            
-            const player = room.players.find(p => p.name === playerName);
-            const card = player.hand[cardIndex];
-            
-            if (player.hand.some(c => c.value === 7)) {
-                const otherCard = player.hand.find(c => c.value !== 7);
-                if (otherCard && (otherCard.value === 5 || otherCard.value === 6)) {
-                    if (card.value !== 7) {
-                        alert('Debes jugar la Condesa si tienes Rey o Príncipe');
-                        return;
-                    }
-                }
-            }
-            
-            player.hand.splice(cardIndex, 1);
-            room.discardPile.push(card);
-            room.waitingForAction = null;
-            
-            room.players.forEach(p => p.protected = false);
-            
-            applyLoveLetterCardEffect(roomCode, playerName, card, room);
-        }
-
-        function applyLoveLetterCardEffect(roomCode, playerName, card, room) {
-            switch (card.value) {
-                case 1:
-                    const targetName = prompt('Elige un jugador (nombre exacto):');
-                    const target1 = room.players.find(p => p.name === targetName);
-                    if (!target1 || target1.eliminated) {
-                        alert('Jugador inválido');
-                        break;
-                    }
-                    if (target1.protected) {
-                        alert(`${targetName} está protegido`);
-                        break;
-                    }
-                    const guessValue = parseInt(prompt('Adivina el número de su carta (2-8):'));
-                    if (guessValue >= 2 && guessValue <= 8 && target1.hand[0].value === guessValue) {
-                        target1.eliminated = true;
-                        room.discardPile.push(target1.hand[0]);
-                        target1.hand = [];
-                        alert(`¡Correcto! ${targetName} tenía ${target1.hand[0] ? target1.hand[0].name : 'la carta'} y queda eliminado`);
-                    } else {
-                        alert(`Incorrecto.`);
-                    }
-                    break;
-                    
-                case 2:
-                    const priestTarget = prompt('Elige un jugador para ver su carta:');
-                    const target2 = room.players.find(p => p.name === priestTarget);
-                    if (target2 && !target2.eliminated && !target2.protected && target2.hand[0]) {
-                        alert(`${priestTarget} tiene: ${target2.hand[0].name} (${target2.hand[0].value})`);
-                    }
-                    break;
-                    
-                case 3:
-                    const baronTarget = prompt('Elige un jugador para comparar manos:');
-                    const target3 = room.players.find(p => p.name === baronTarget);
-                    const player3 = room.players.find(p => p.name === playerName);
-                    if (target3 && !target3.eliminated && !target3.protected && baronTarget !== playerName) {
-                        if (player3.hand[0].value > target3.hand[0].value) {
-                            target3.eliminated = true;
-                            room.discardPile.push(target3.hand[0]);
-                            target3.hand = [];
-                            alert(`¡Ganaste! ${baronTarget} queda eliminado.`);
-                        } else if (player3.hand[0].value < target3.hand[0].value) {
-                            player3.eliminated = true;
-                            room.discardPile.push(player3.hand[0]);
-                            player3.hand = [];
-                            alert(`Perdiste. Quedas eliminado.`);
-                        } else {
-                            alert(`Empate.`);
-                        }
-                    }
-                    break;
-                    
-                case 4:
-                    const player4 = room.players.find(p => p.name === playerName);
-                    player4.protected = true;
-                    break;
-                    
-                case 5:
-                    const princeTarget = prompt('Elige un jugador que descarte y robe:');
-                    const target5 = room.players.find(p => p.name === princeTarget);
-                    if (target5 && !target5.eliminated && (princeTarget === playerName || !target5.protected)) {
-                        const discarded = target5.hand[0];
-                        room.discardPile.push(discarded);
-                        if (discarded.value === 8) {
-                            target5.eliminated = true;
-                            target5.hand = [];
-                            alert(`${princeTarget} descartó la Princesa y queda eliminado`);
-                        } else {
-                            target5.hand = room.deck.length > 0 ? [room.deck.pop()] : [room.removedCard];
-                        }
-                    }
-                    break;
-                    
-                case 6:
-                    const kingTarget = prompt('Elige un jugador para intercambiar manos:');
-                    const target6 = room.players.find(p => p.name === kingTarget);
-                    const player6 = room.players.find(p => p.name === playerName);
-                    if (target6 && !target6.eliminated && !target6.protected && kingTarget !== playerName) {
-                        const temp = player6.hand[0];
-                        player6.hand[0] = target6.hand[0];
-                        target6.hand[0] = temp;
-                        alert(`Intercambiaste cartas con ${kingTarget}`);
-                    }
-                    break;
-                    
-                case 7:
-                    break;
-                    
-                case 8:
-                    const player8 = room.players.find(p => p.name === playerName);
-                    player8.eliminated = true;
-                    player8.hand = [];
-                    alert('Jugaste la Princesa. Quedas eliminado.');
-                    break;
-            }
-            
-            do {
-                room.currentTurnIndex = (room.currentTurnIndex + 1) % room.playerOrder.length;
-            } while (room.players.find(p => p.name === room.playerOrder[room.currentTurnIndex]).eliminated);
-            
-            saveRoom(room);
-            playLoveLetter(roomCode, playerName, room);
-        }
-
-        function endLoveLetterRound(roomCode, winnerName) {
-            const roomData = localStorage.getItem('room_' + roomCode);
-            const room = JSON.parse(roomData);
-            
-            const winner = room.players.find(p => p.name === winnerName);
-            winner.score++;
-            room.currentRound++;
-            room.roundInProgress = false;
-            room.currentTurnIndex = 0;
-            
-            saveRoom(room);
-            playLoveLetter(roomCode, document.getElementById('playerName').value.trim(), room);
         }
 
         // Inicialización
