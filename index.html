@@ -288,6 +288,10 @@
                     <h3>🏃 Quick Stop</h3>
                     <p>Completa categorías con palabras que empiecen con la letra indicada. ¡El más rápido gana!</p>
                 </div>
+                <div class="game-card" onclick="selectGame('loveletter')">
+                    <h3>💌 Love Letter</h3>
+                    <p>Juego de deducción y faroleo. Sé el último en pie o termina con la carta más alta.</p>
+                </div>
             </div>
 
             <!-- Configuración Blanco -->
@@ -310,11 +314,21 @@
                 </div>
             </div>
 
+            <!-- Configuración Love Letter -->
+            <div id="loveletterConfig" class="hidden">
+                <label>Puntos para Ganar:</label>
+                <input type="number" id="pointsToWin" value="4" min="2" max="10">
+                
+                <div class="info">
+                    💡 Cada ronda ganada otorga 1 punto. El primer jugador en alcanzar este número gana la partida.
+                </div>
+            </div>
+
             <label>Nombres de Jugadores (separados por coma):</label>
             <textarea id="playerNames" placeholder="Juan, María, Pedro, Ana"></textarea>
             
             <div class="info">
-                ℹ️ Mínimo 3 jugadores para Blanco/Lobo, 4 para Código Secreto
+                ℹ️ Mínimo 3 jugadores para Blanco/Lobo, 4 para Código Secreto, 2-4 para Love Letter
             </div>
 
             <div class="btn" onclick="createGame()">Crear Sala</div>
@@ -409,11 +423,14 @@
             // Mostrar/ocultar configuración específica
             document.getElementById('blancoConfig').classList.add('hidden');
             document.getElementById('quickstopConfig').classList.add('hidden');
+            document.getElementById('loveletterConfig').classList.add('hidden');
             
             if (game === 'blanco') {
                 document.getElementById('blancoConfig').classList.remove('hidden');
             } else if (game === 'quickstop') {
                 document.getElementById('quickstopConfig').classList.remove('hidden');
+            } else if (game === 'loveletter') {
+                document.getElementById('loveletterConfig').classList.remove('hidden');
             }
             
             // Quick Stop no necesita lista de jugadores
@@ -456,13 +473,18 @@
 
                 players = playerNamesInput.split(',').map(name => name.trim()).filter(name => name);
                 
-                if (players.length < 3 && selectedGame !== 'codigo') {
+                if (players.length < 3 && selectedGame !== 'codigo' && selectedGame !== 'loveletter') {
                     alert('Se necesitan mínimo 3 jugadores');
                     return;
                 }
                 
                 if (players.length < 4 && selectedGame === 'codigo') {
                     alert('Código Secreto necesita mínimo 4 jugadores (2 por equipo)');
+                    return;
+                }
+                
+                if ((players.length < 2 || players.length > 4) && selectedGame === 'loveletter') {
+                    alert('Love Letter necesita entre 2 y 4 jugadores');
                     return;
                 }
             }
