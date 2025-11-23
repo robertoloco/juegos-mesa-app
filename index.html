@@ -1,266 +1,379 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juegos de Grupo</title>
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+justify-content: center;
+align-items: center;
+padding: 20px;
+}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+.container {
+background: white;
+border-radius: 20px;
+padding: 30px;
+max-width: 600px;
+width: 100%;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
 
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
+h1 {
+color: #667eea;
+margin-bottom: 10px;
+font-size: 28px;
+text-align: center;
+}
 
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 28px;
-            text-align: center;
-        }
+.subtitle {
+text-align: center;
+color: #666;
+margin-bottom: 30px;
+font-size: 14px;
+}
 
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+.screen {
+display: none;
+}
 
-        .screen {
-            display: none;
-        }
+.screen.active {
+display: block;
+animation: fadeIn 0.3s ease-in;
+}
 
-        .screen.active {
-            display: block;
-            animation: fadeIn 0.3s ease-in;
-        }
+@keyframes fadeIn {
+from {
+opacity: 0;
+transform: translateY(10px);
+}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+to {
+opacity: 1;
+transform: translateY(0);
+}
+}
 
-        .game-select {
-            display: grid;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+.game-select {
+display: grid;
+gap: 15px;
+margin-bottom: 20px;
+}
 
-        .game-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 3px solid transparent;
-        }
+.game-card {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+padding: 20px;
+border-radius: 15px;
+cursor: pointer;
+transition: transform 0.2s, box-shadow 0.2s;
+border: 3px solid transparent;
+}
 
-        .game-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
+.game-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
 
-        .game-card.selected {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
+.game-card.selected {
+border-color: #ffd700;
+box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
 
-        .game-card h3 {
-            margin-bottom: 8px;
-            font-size: 20px;
-        }
+.game-card h3 {
+margin-bottom: 8px;
+font-size: 20px;
+}
 
-        .game-card p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
+.game-card p {
+font-size: 14px;
+opacity: 0.9;
+}
 
-        label {
-            display: block;
-            margin-top: 20px;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
+label {
+display: block;
+margin-top: 20px;
+margin-bottom: 8px;
+color: #333;
+font-weight: 600;
+}
 
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
+input,
+textarea {
+width: 100%;
+padding: 12px;
+border: 2px solid #e0e0e0;
+border-radius: 10px;
+font-size: 16px;
+transition: border-color 0.3s;
+}
 
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+input:focus,
+textarea:focus {
+outline: none;
+border-color: #667eea;
+}
 
-        input:disabled {
-            background: #f0f0f0;
-            cursor: not-allowed;
-        }
+input:disabled {
+background: #f0f0f0;
+cursor: not-allowed;
+}
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-            font-family: inherit;
-        }
+textarea {
+resize: vertical;
+min-height: 80px;
+font-family: inherit;
+}
 
-        .btn {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
+.btn {
+width: 100%;
+padding: 15px;
+margin-top: 20px;
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+border: none;
+border-radius: 10px;
+font-size: 18px;
+font-weight: 600;
+cursor: pointer;
+transition: transform 0.2s, box-shadow 0.2s;
+}
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
+.btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
 
-        .btn:active {
-            transform: translateY(0);
-        }
+.btn:active {
+transform: translateY(0);
+}
 
-        .btn-secondary {
-            background: #6c757d;
-            margin-top: 10px;
-        }
+.btn-secondary {
+background: #6c757d;
+margin-top: 10px;
+}
 
-        .code-display {
-            background: #f8f9fa;
-            border: 3px dashed #667eea;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 20px 0;
-        }
+.code-display {
+background: #f8f9fa;
+border: 3px dashed #667eea;
+padding: 30px;
+border-radius: 15px;
+text-align: center;
+margin: 20px 0;
+}
 
-        .code-display .code {
-            font-size: 48px;
-            font-weight: bold;
-            color: #667eea;
-            letter-spacing: 8px;
-            font-family: 'Courier New', monospace;
-        }
+.code-display .code {
+font-size: 48px;
+font-weight: bold;
+color: #667eea;
+letter-spacing: 8px;
+font-family: 'Courier New', monospace;
+}
 
-        .code-display p {
-            margin-top: 15px;
-            color: #666;
-            font-size: 14px;
-        }
+.code-display p {
+margin-top: 15px;
+color: #666;
+font-size: 14px;
+}
 
-        .info {
-            background: #d1ecf1;
-            border-left: 4px solid #17a2b8;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            color: #0c5460;
-            font-size: 14px;
-        }
+.info {
+background: #d1ecf1;
+border-left: 4px solid #17a2b8;
+padding: 15px;
+border-radius: 8px;
+margin: 15px 0;
+color: #0c5460;
+font-size: 14px;
+}
 
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            color: #856404;
-        }
+.warning {
+background: #fff3cd;
+border-left: 4px solid #ffc107;
+padding: 15px;
+border-radius: 8px;
+margin: 15px 0;
+color: #856404;
+}
 
-        .hidden {
-            display: none !important;
-        }
+.hidden {
+display: none !important;
+}
 
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin: 20px 0;
-        }
+.game-board {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 8px;
+margin: 20px 0;
+}
 
-        .board-card {
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            min-height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #e0e0e0;
-            font-weight: bold;
-            font-size: 13px;
-            word-break: break-word;
-        }
+.board-card {
+padding: 12px;
+border-radius: 8px;
+text-align: center;
+min-height: 50px;
+display: flex;
+align-items: center;
+justify-content: center;
+border: 2px solid #e0e0e0;
+font-weight: bold;
+font-size: 13px;
+word-break: break-word;
+}
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-                max-width: 100%;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
-            
-            .code-display .code {
-                font-size: 36px;
-                letter-spacing: 4px;
-            }
-            
-            .game-board {
-                gap: 5px;
-            }
-            
-            .board-card {
-                padding: 8px;
-                min-height: 45px;
-                font-size: 11px;
-            }
-        }
-    </style>
+@media (max-width: 480px) {
+.container {
+padding: 15px;
+max-width: 100%;
+}
+
+h1 {
+font-size: 22px;
+}
+
+.code-display .code {
+font-size: 36px;
+letter-spacing: 4px;
+}
+
+.game-board {
+gap: 5px;
+}
+
+.board-card {
+padding: 8px;
+min-height: 45px;
+font-size: 11px;
+}
+}
+
+/* Nuevos Estilos Visuales */
+.spyfall-location {
+background: #2d3748;
+color: white;
+padding: 5px 10px;
+border-radius: 15px;
+margin: 2px;
+display: inline-block;
+font-size: 0.9em;
+}
+
+.conexion-card {
+width: 60px;
+height: 90px;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+font-size: 24px;
+background: white;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+border: 2px solid #667eea;
+cursor: pointer;
+transition: transform 0.2s;
+}
+
+.conexion-card:hover {
+transform: translateY(-5px);
+}
+
+.codenames-grid {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 10px;
+margin: 20px 0;
+}
+
+.codenames-card {
+aspect-ratio: 4/3;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding: 5px;
+border-radius: 8px;
+font-weight: bold;
+font-size: 0.9em;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+transition: all 0.3s ease;
+position: relative;
+overflow: hidden;
+background: white;
+border: 2px solid #e2e8f0;
+color: #2d3748;
+}
+
+.codenames-card.revealed {
+color: white;
+border: none;
+}
+
+.codenames-card.rojo {
+background: #fc8181;
+}
+
+.codenames-card.azul {
+background: #63b3ed;
+}
+
+.codenames-card.inocente {
+background: #cbd5e0;
+color: #4a5568;
+}
+
+.codenames-card.asesino {
+background: #1a202c;
+color: white;
+}
+
+.love-letter-card {
+background: white;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
+padding: 15px;
+margin: 10px 0;
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+position: relative;
+overflow: hidden;
+}
+
+.love-letter-card::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 5px;
+background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.card-number {
+font-size: 2em;
+font-weight: 900;
+color: #e2e8f0;
+position: absolute;
+top: 10px;
+right: 15px;
+line-height: 1;
+}
+
+.card-name {
+font-size: 1.2em;
+font-weight: bold;
+color: #2d3748;
+margin-bottom: 5px;
+position: relative;
+}
+
+.card-effect {
+font-size: 0.9em;
+color: #718096;
+line-height: 1.4;
+position: relative;
+}
+</style>
 </head>
+
 <body>
     <div class="container">
         <!-- Pantalla Inicial -->
         <div id="homeScreen" class="screen active">
             <h1>🎮 Juegos de Grupo</h1>
             <p class="subtitle">Selecciona tu modo de juego</p>
-            
+
             <div class="btn" onclick="showCreateGame()">Crear Nueva Sala</div>
             <div class="btn btn-secondary" onclick="showJoinGame()">Unirse a Sala</div>
         </div>
@@ -296,13 +409,29 @@
                     <h3>⏱️ Time's Up</h3>
                     <p>3 rondas con las mismas palabras: Describe, Una palabra, Mímica. ¡Contra el tiempo!</p>
                 </div>
+
+                <div class="game-card" onclick="selectGame('overunder')">
+                    <h3>📊 Over/Under</h3>
+                    <p>Adivina si la respuesta es MÁS o MENOS. Datos curiosos y apuestas rápidas.</p>
+                </div>
+
+                <div class="game-card" onclick="selectGame('spyfall')">
+                    <h3>🕵️ Spyfall</h3>
+                    <p>Descubre al espía antes de que él descubra la ubicación secreta. Roles y engaños.</p>
+                </div>
+
+                <div class="game-card" onclick="selectGame('conexion')">
+                    <h3>🧠 Conexión Mental</h3>
+                    <p>Juego cooperativo. Jugad cartas en orden ascendente SIN HABLAR. ¿Podéis conectar vuestras mentes?
+                    </p>
+                </div>
             </div>
 
             <!-- Configuración Blanco -->
             <div id="blancoConfig" class="hidden">
                 <label>Palabra Secreta:</label>
                 <input type="text" id="secretWord" placeholder="Ej: Pizza">
-                
+
                 <div class="info">
                     💡 Esta palabra la verán todos excepto el jugador "Blanco"
                 </div>
@@ -312,7 +441,7 @@
             <div id="quickstopConfig" class="hidden">
                 <label>Número de Rondas:</label>
                 <input type="number" id="numRounds" value="5" min="1" max="20">
-                
+
                 <div class="info">
                     💡 Quick Stop no necesita lista de jugadores. Cada uno juega en su dispositivo.
                 </div>
@@ -322,7 +451,7 @@
             <div id="loveletterConfig" class="hidden">
                 <label>Puntos para Ganar:</label>
                 <input type="number" id="pointsToWin" value="4" min="2" max="10">
-                
+
                 <div class="info">
                     💡 Cada ronda ganada otorga 1 punto. El primer jugador en alcanzar este número gana la partida.
                 </div>
@@ -332,15 +461,16 @@
             <div id="timesupConfig" class="hidden">
                 <label>Número de Palabras:</label>
                 <input type="number" id="numWords" value="40" min="20" max="60">
-                
+
                 <div class="info">
-                    💡 Time's Up: Divide jugadores en 2 equipos. Los primeros 2 jugadores de la lista serán los representantes (marcan aciertos).
+                    💡 Time's Up: Divide jugadores en 2 equipos. Los primeros 2 jugadores de la lista serán los
+                    representantes (marcan aciertos).
                 </div>
             </div>
 
             <label>Nombres de Jugadores (separados por coma):</label>
             <textarea id="playerNames" placeholder="Juan, María, Pedro, Ana"></textarea>
-            
+
             <div class="info">
                 ℹ️ Mínimo 3 jugadores para Blanco/Lobo, 4 para Código Secreto/Time's Up, 2-4 para Love Letter
             </div>
@@ -352,7 +482,7 @@
         <!-- Pantalla: Sala Creada -->
         <div id="lobbyScreen" class="screen">
             <h1>✅ Sala Creada</h1>
-            
+
             <div class="code-display">
                 <div class="code" id="roomCode">----</div>
                 <p>Comparte este código con los jugadores</p>
@@ -378,7 +508,8 @@
             <input type="text" id="playerName" placeholder="Tu nombre">
 
             <label>Código de Sala:</label>
-            <input type="text" id="roomCodeInput" placeholder="Ej: A1B2" maxlength="4" style="text-transform: uppercase;">
+            <input type="text" id="roomCodeInput" placeholder="Ej: A1B2" maxlength="4"
+                style="text-transform: uppercase;">
 
             <div class="btn" onclick="joinGame()">Entrar al Juego</div>
             <div class="btn btn-secondary" onclick="showHome()">Volver</div>
@@ -440,7 +571,7 @@
             document.getElementById('quickstopConfig').classList.add('hidden');
             document.getElementById('loveletterConfig').classList.add('hidden');
             document.getElementById('timesupConfig').classList.add('hidden');
-            
+
             if (game === 'blanco') {
                 document.getElementById('blancoConfig').classList.remove('hidden');
             } else if (game === 'quickstop') {
@@ -450,7 +581,8 @@
             } else if (game === 'timesup') {
                 document.getElementById('timesupConfig').classList.remove('hidden');
             }
-            
+            // Nuevos juegos no requieren config extra por ahora
+
             // Quick Stop no necesita lista de jugadores
             if (game === 'quickstop') {
                 document.getElementById('playerNames').value = 'No requerido';
@@ -490,19 +622,24 @@
                 }
 
                 players = playerNamesInput.split(',').map(name => name.trim()).filter(name => name);
-                
+
                 if (players.length < 3 && selectedGame !== 'codigo' && selectedGame !== 'loveletter' && selectedGame !== 'timesup') {
                     alert('Se necesitan mínimo 3 jugadores');
                     return;
                 }
-                
+
                 if (players.length < 4 && (selectedGame === 'codigo' || selectedGame === 'timesup')) {
                     alert('Código Secreto y Time\'s Up necesitan mínimo 4 jugadores (2 por equipo)');
                     return;
                 }
-                
+
                 if ((players.length < 2 || players.length > 4) && selectedGame === 'loveletter') {
                     alert('Love Letter necesita entre 2 y 4 jugadores');
+                    return;
+                }
+
+                if (selectedGame === 'spyfall' && players.length < 3) {
+                    alert('Spyfall necesita mínimo 3 jugadores');
                     return;
                 }
             }
@@ -517,7 +654,7 @@
 
             // Generar código de sala
             const roomCode = generateRoomCode();
-            
+
             // Crear sala en Firebase
             const room = {
                 code: roomCode,
@@ -530,7 +667,7 @@
             if (selectedGame === 'blanco') {
                 room.secretWord = document.getElementById('secretWord').value.trim();
                 const blancoIndex = Math.floor(Math.random() * players.length);
-                
+
                 room.players = {};
                 players.forEach((name, index) => {
                     room.players[name] = {
@@ -542,7 +679,7 @@
                 const numLobos = Math.max(1, Math.floor(players.length / 4));
                 const roles = ['lobo'].concat(Array(players.length - numLobos).fill('aldeano'));
                 shuffleArray(roles);
-                
+
                 room.players = {};
                 room.moderator = players[0]; // Primer jugador es moderador
                 players.forEach((name, index) => {
@@ -559,7 +696,7 @@
                 room.players = {};
                 room.board = generateCodigoSecretoBoard();
                 room.currentTeam = 'rojo';
-                
+
                 // Dividir jugadores en equipos
                 shuffleArray(players);
                 const half = Math.floor(players.length / 2);
@@ -583,7 +720,7 @@
                 room.currentTurnIndex = 0;
                 room.roundInProgress = false;
                 room.playerOrder = players;
-                
+
                 room.players = {};
                 players.forEach((name) => {
                     room.players[name] = {
@@ -596,12 +733,12 @@
             } else if (selectedGame === 'timesup') {
                 const numWords = parseInt(document.getElementById('numWords').value) || 40;
                 const words = generateTimesUpWords(numWords);
-                
+
                 // Dividir jugadores en 2 equipos
                 const half = Math.ceil(players.length / 2);
                 const teamA = players.slice(0, half);
                 const teamB = players.slice(half);
-                
+
                 room.words = words;
                 room.currentRound = 1; // 1=Describe, 2=Una palabra, 3=Mímica
                 room.currentTeam = 'A';
@@ -616,12 +753,58 @@
                 room.timerActive = false;
                 room.timeRemaining = 30;
                 room.wordsGuessedThisRound = [];
-                
+
                 room.players = {};
                 players.forEach((name, index) => {
                     room.players[name] = {
                         team: index < half ? 'A' : 'B',
                         representative: (index === 0 || index === half)
+                    };
+                });
+
+            } else if (selectedGame === 'overunder') {
+                room.currentQuestion = null;
+                room.phase = 'waiting';
+                room.players = {};
+                players.forEach(name => { room.players[name] = { score: 0 }; });
+                startOverUnderRound(roomCode); // Pre-cargar primera pregunta
+            } else if (selectedGame === 'spyfall') {
+                const locKeys = Object.keys(SPYFALL_LOCATIONS);
+                const location = locKeys[Math.floor(Math.random() * locKeys.length)];
+                const roles = [...SPYFALL_LOCATIONS[location]];
+
+                // Asegurar suficientes roles o repetir genéricos
+                while (roles.length < players.length - 1) roles.push('Ciudadano');
+                shuffleArray(roles);
+
+                const spyIndex = Math.floor(Math.random() * players.length);
+
+                room.location = location;
+                room.timerActive = false;
+                room.timeRemaining = 480;
+                room.players = {};
+
+                let roleIndex = 0;
+                players.forEach((name, index) => {
+                    room.players[name] = {
+                        role: index === spyIndex ? 'Espía' : roles[roleIndex++]
+                    };
+                });
+            } else if (selectedGame === 'conexion') {
+                room.level = 1;
+                room.lives = players.length;
+                room.shurikens = 1;
+                room.lastCard = 0;
+                room.status = 'playing';
+                room.shurikenActive = false;
+
+                const deck = Array.from({ length: 100 }, (_, i) => i + 1);
+                shuffleArray(deck);
+
+                room.players = {};
+                players.forEach(name => {
+                    room.players[name] = {
+                        hand: [deck.pop()]
                     };
                 });
             }
@@ -631,7 +814,7 @@
                 await database.ref('rooms/' + roomCode).set(room);
                 currentRoom = room;
                 displayLobby(roomCode);
-                
+
                 // Auto-eliminar sala después de 24 horas
                 setTimeout(async () => {
                     await database.ref('rooms/' + roomCode).remove();
@@ -661,7 +844,7 @@
             try {
                 const snapshot = await database.ref('rooms/' + roomCode).once('value');
                 const room = snapshot.val();
-                
+
                 if (!room) {
                     alert('Error: Sala no encontrada');
                     return;
@@ -684,6 +867,12 @@
                     playLobo(roomCode, playerName);
                 } else if (room.game === 'timesup') {
                     playTimesUp(roomCode, playerName);
+                } else if (room.game === 'overunder') {
+                    playOverUnder(roomCode, playerName);
+                } else if (room.game === 'spyfall') {
+                    playSpyfall(roomCode, playerName);
+                } else if (room.game === 'conexion') {
+                    playConexionMental(roomCode, playerName);
                 }
             } catch (error) {
                 alert('Error al unirse: ' + error.message);
@@ -709,7 +898,7 @@
             try {
                 const snapshot = await database.ref('rooms/' + roomCode).once('value');
                 const room = snapshot.val();
-                
+
                 if (!room) {
                     alert('Sala no encontrada. Verifica el código.');
                     return;
@@ -732,6 +921,12 @@
                     playLobo(roomCode, playerName);
                 } else if (room.game === 'timesup') {
                     playTimesUp(roomCode, playerName);
+                } else if (room.game === 'overunder') {
+                    playOverUnder(roomCode, playerName);
+                } else if (room.game === 'spyfall') {
+                    playSpyfall(roomCode, playerName);
+                } else if (room.game === 'conexion') {
+                    playConexionMental(roomCode, playerName);
                 }
             } catch (error) {
                 alert('Error al unirse: ' + error.message);
@@ -741,12 +936,12 @@
         function showRole(room, playerName) {
             const gameContent = document.getElementById('gameContent');
             const gameHeader = document.getElementById('gameHeader');
-            
+
             if (!room.players[playerName]) {
                 alert('Tu nombre no está en la lista de jugadores de esta sala');
                 return;
             }
-            
+
             gameHeader.innerHTML = renderGameHeader(room.code, room.game);
             const player = room.players[playerName];
 
@@ -782,15 +977,15 @@
                 'Montaña', 'Estrella', 'Fuego', 'Nube', 'Robot', 'Árbol', 'Mar', 'Luz', 'Sombra', 'Viento',
                 'Río', 'Flores', 'Nieve', 'Torre', 'Dragón'
             ];
-            
+
             shuffleArray(words);
             const board = [];
             const roles = ['rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo', 'rojo',
-                          'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul',
-                          'inocente', 'inocente', 'inocente', 'inocente', 'inocente', 'inocente', 'inocente',
-                          'asesino'];
+                'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul',
+                'inocente', 'inocente', 'inocente', 'inocente', 'inocente', 'inocente', 'inocente',
+                'asesino'];
             shuffleArray(roles);
-            
+
             for (let i = 0; i < 25; i++) {
                 board.push({
                     word: words[i],
@@ -798,7 +993,7 @@
                     revealed: false
                 });
             }
-            
+
             return board;
         }
 
@@ -857,55 +1052,49 @@
                             <h1 style="font-size: 48px; margin: 0;">¡Equipo ${winner} GANA!</h1>
                             ${asesinRevealed ? '<p style="margin-top: 20px;">El otro equipo reveló al ASESINO 💥</p>' : '<p style="margin-top: 20px;">¡Encontraron todos sus agentes!</p>'}
                         </div>
+                        <div class="btn" onclick="location.reload()">Volver al Inicio</div>
                     `;
                     return;
                 }
 
                 let html = `
                     <h2 style="text-align: center; color: #667eea; margin-bottom: 10px;">🔐 Código Secreto</h2>
-                    <div style="background: ${player.team === 'rojo' ? '#ff6b6b' : '#4dabf7'}; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
+                    <div style="background: ${player.team === 'rojo' ? '#fc8181' : '#63b3ed'}; color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                         <strong>Equipo: ${player.team.toUpperCase()}</strong><br>
                         Rol: ${player.role === 'spymaster' ? 'SPYMASTER' : 'OPERATIVE'}
                     </div>
                     <div style="display: flex; justify-content: space-around; margin-bottom: 15px;">
-                        <div style="background: #ff6b6b; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold;">
+                        <div style="background: #fc8181; color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             🔴 Rojo: ${rojoRevealed}/${rojoTotal}
                         </div>
-                        <div style="background: #4dabf7; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold;">
+                        <div style="background: #63b3ed; color: white; padding: 10px 20px; border-radius: 20px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                             🔵 Azul: ${azulRevealed}/${azulTotal}
                         </div>
                     </div>
-                    <div class="game-board">
+                    <div class="codenames-grid">
                 `;
 
                 room.board.forEach((card, index) => {
                     const showRole = player.role === 'spymaster';
-                    const bgColor = card.revealed ? 
-                        (card.role === 'rojo' ? '#ff6b6b' : 
-                         card.role === 'azul' ? '#4dabf7' : 
-                         card.role === 'asesino' ? '#000' : '#adb5bd') :
-                        (showRole ? 
-                            (card.role === 'rojo' ? '#ff6b6b80' : 
-                             card.role === 'azul' ? '#4dabf780' : 
-                             card.role === 'asesino' ? '#00000080' : '#adb5bd80') : 
-                            '#fff');
-                    
                     const isClickable = player.role === 'spymaster' && !card.revealed;
                     const cursor = isClickable ? 'pointer' : 'default';
                     const onclick = isClickable ? `onclick="revealCodigoCard('${roomCode}', ${index})"` : '';
-                    
+
                     html += `
-                        <div class="board-card" style="background: ${bgColor}; color: ${bgColor.includes('#000') ? 'white' : '#333'}; cursor: ${cursor};" ${onclick}>
+                        <div class="codenames-card ${card.revealed ? card.role : ''} ${card.revealed ? 'revealed' : ''}" 
+                             style="${!card.revealed && showRole ? (card.role === 'rojo' ? 'color: #fc8181; border-color: #fc8181;' : card.role === 'azul' ? 'color: #63b3ed; border-color: #63b3ed;' : card.role === 'asesino' ? 'color: #2d3748; border-color: #2d3748;' : '') : ''}; cursor: ${cursor};" 
+                             ${onclick}>
                             ${card.word}
+                            ${!card.revealed && showRole ? `<div style="position: absolute; bottom: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: ${card.role === 'rojo' ? '#fc8181' : card.role === 'azul' ? '#63b3ed' : card.role === 'asesino' ? '#2d3748' : '#cbd5e0'};"></div>` : ''}
                         </div>
                     `;
                 });
 
                 html += `</div>
                     <div class="info">
-                        ${player.role === 'spymaster' ? 
-                            '💡 Da pistas de UNA palabra + número. <strong>Clickea las palabras</strong> que elijan tus operatives para revelarlas.' : 
-                            '💡 Escucha a tu spymaster y adivina las palabras de tu equipo. El spymaster revelará las palabras.'}
+                        ${player.role === 'spymaster' ?
+                        '💡 Da pistas de UNA palabra + número. <strong>Clickea las palabras</strong> que elijan tus operatives para revelarlas.' :
+                        '💡 Escucha a tu spymaster y adivina las palabras de tu equipo. El spymaster revelará las palabras.'}
                     </div>
                 `;
 
@@ -918,10 +1107,6 @@
         async function revealCodigoCard(roomCode, cardIndex) {
             await database.ref(`rooms/${roomCode}/board/${cardIndex}/revealed`).set(true);
         }
-
-        // ============================================
-        // EL LOBO - Sistema completo con moderador
-        // ============================================
 
         function playLobo(roomCode, playerName) {
             const gameContent = document.getElementById('gameContent');
@@ -981,10 +1166,10 @@
                     Object.keys(room.players).forEach(p => {
                         const player = room.players[p];
                         if (player.role === 'moderador') return;
-                        
+
                         const roleIcon = player.role === 'lobo' ? '🐺' : '👥';
                         const status = player.alive ? '✅' : '❌';
-                        
+
                         html += `
                             <div style="background: ${player.alive ? '#e7f3ff' : '#f8f9fa'}; padding: 12px; border-radius: 8px; margin: 5px 0; border-left: 4px solid ${player.role === 'lobo' ? '#dc3545' : '#667eea'}; opacity: ${player.alive ? 1 : 0.5};">
                                 ${status} <strong>${p}</strong> - ${roleIcon} ${player.role.toUpperCase()}
@@ -1190,7 +1375,7 @@
 
                 if (isPlaying) {
                     const currentWord = room.words[room.currentWordIndex];
-                    
+
                     html += `
                         <div style="background: ${isMyTurn ? '#fffbea' : '#f8f9fa'}; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 15px; border: 3px solid ${isMyTurn ? '#ffc107' : '#e0e0e0'};">
                             <div style="font-size: 48px; font-weight: bold; margin: 20px 0;">⏱️ ${room.timeRemaining}s</div>
@@ -1344,9 +1529,9 @@
         function playQuickStop(roomCode, playerName) {
             const gameContent = document.getElementById('gameContent');
             const gameHeader = document.getElementById('gameHeader');
-            
+
             gameHeader.innerHTML = renderGameHeader(roomCode, 'quickstop');
-            
+
             roomRef.on('value', (snapshot) => {
                 const room = snapshot.val();
                 if (!room) return;
@@ -1365,9 +1550,9 @@
                         <div style="text-align: center; padding: 40px;">
                             <h3>Ronda ${room.currentRound} de ${room.numRounds}</h3>
                             <p style="margin: 20px 0;">Esperando que comience la ronda...</p>
-                            ${Object.keys(room.players)[0] === playerName ? 
-                                '<div class="btn" onclick="startQuickStopRound()">Iniciar Ronda</div>' : 
-                                '<p style="color: #666;">El primer jugador iniciará la ronda</p>'}
+                            ${Object.keys(room.players)[0] === playerName ?
+                            '<div class="btn" onclick="startQuickStopRound()">Iniciar Ronda</div>' :
+                            '<p style="color: #666;">El primer jugador iniciará la ronda</p>'}
                         </div>
                     `;
                 } else {
@@ -1402,22 +1587,22 @@
         function startQuickStopRound() {
             const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             const randomLetter = letters.charAt(Math.floor(Math.random() * letters.length));
-            
+
             database.ref(`rooms/${currentRoom.code}/currentLetter`).set(randomLetter);
         }
 
         async function submitQuickStopAnswers(event) {
             event.preventDefault();
-            
+
             const playerName = document.getElementById('playerName').value.trim();
             const answers = {};
-            
+
             currentRoom.categories.forEach((cat, index) => {
                 answers[cat] = document.getElementById(`cat_${index}`).value.trim();
             });
 
             await database.ref(`rooms/${currentRoom.code}/players/${playerName}/answers/round${currentRoom.currentRound}`).set(answers);
-            
+
             alert('¡Respuestas enviadas! Espera a que todos terminen para ver los resultados.');
         }
 
@@ -1471,16 +1656,6 @@
                     <ol>
                         <li>Los lobos se conocen entre sí</li>
                         <li>De día: todos votan para eliminar a alguien</li>
-                        <li>De noche: los lobos eligen eliminar a un aldeano</li>
-                        <li>Usen la conversación para deducir quién es quién</li>
-                    </ol>
-                `,
-                codigo: `
-                    <h3>🔐 Código Secreto - Reglas</h3>
-                    <p><strong>Objetivo:</strong> Encuentra todos los agentes de tu equipo antes que el equipo rival</p>
-                    <p><strong>Roles:</strong></p>
-                    <ul>
-                        <li><strong>Spymaster:</strong> Ve todo el tablero. Da pistas de UNA palabra + número</li>
                         <li><strong>Operatives:</strong> Adivinan palabras basadas en las pistas</li>
                     </ul>
                     <p><strong>Colores:</strong></p>
@@ -1490,9 +1665,9 @@
                         <li><strong>Negro:</strong> Asesino (💥 pierdes instantáneamente)</li>
                     </ul>
                     <p><strong>Spymaster clickea las palabras</strong> que elijan los operatives para revelarlas.</p>
-                `,
+            `,
                 quickstop: `
-                    <h3>🏃 Quick Stop - Reglas</h3>
+                < h3 >🏃 Quick Stop - Reglas</h3 >
                     <p><strong>Objetivo:</strong> Ser el primero en completar todas las categorías</p>
                     <p><strong>Cómo jugar:</strong></p>
                     <ol>
@@ -1502,9 +1677,9 @@
                         <li>Comparan respuestas: única = 10pts, repetida = 5pts, vacía = 0pts</li>
                     </ol>
                     <p><strong>Categorías:</strong> Nombre, Animal, Ciudad, Objeto, Comida, Color</p>
-                `,
+            `,
                 loveletter: `
-                    <h3>💌 Love Letter - Reglas</h3>
+                < h3 >💌 Love Letter - Reglas</h3 >
                     <p><strong>Objetivo:</strong> Sé el último en pie o termina con la carta más alta</p>
                     <p><strong>Cómo jugar:</strong></p>
                     <ol>
@@ -1524,10 +1699,10 @@
                         <li><strong>7-Condesa:</strong> Debes jugarla si tienes Rey o Príncipe</li>
                         <li><strong>8-Princesa:</strong> Si la descartas, quedas eliminado</li>
                     </ul>
-                `,
+            `,
                 timesup: `
-                    <h3>⏱️ Time's Up - Reglas</h3>
-                    <p><strong>Objetivo:</strong> Adivinar el máximo de palabras posible en 3 rondas distintas</p>
+                < h3 >⏱️ Time's Up - Reglas</h3>
+                    < p > <strong>Objetivo:</strong> Adivinar el máximo de palabras posible en 3 rondas distintas</p >
                     <p><strong>3 Rondas con las MISMAS palabras:</strong></p>
                     <ol>
                         <li><strong>Ronda 1 - Descripción:</strong> Puedes describir con todas las palabras que quieras</li>
@@ -1543,18 +1718,57 @@
                         <li>Si no marcas antes de que acabe el tiempo, se considera fallo</li>
                     </ul>
                     <p>El equipo con más aciertos después de las 3 rondas gana.</p>
-                `
+            `,
+                overunder: `
+                < h3 >📊 Over / Under - Reglas</h3 >
+                    <p><strong>Objetivo:</strong> Acertar si la respuesta es mayor o menor.</p>
+                    <p><strong>Cómo jugar:</strong></p>
+                    <ol>
+                        <li>Se presenta una pregunta con respuesta numérica.</li>
+                        <li>Se da un número de referencia.</li>
+                        <li>Apuesta si la respuesta real es MÁS (+) o MENOS (-) que la referencia.</li>
+                        <li>Gana puntos por cada acierto.</li>
+                    </ol>
+            `,
+                spyfall: `
+                < h3 >🕵️ Spyfall - Reglas</h3 >
+                    <p><strong>Objetivo:</strong></p>
+                    <ul>
+                        <li><strong>Espía:</strong> Adivinar la ubicación actual.</li>
+                        <li><strong>No Espías:</strong> Descubrir al espía.</li>
+                    </ul>
+                    <p><strong>Cómo jugar:</strong></p>
+                    <ol>
+                        <li>Todos están en la misma ubicación excepto el Espía.</li>
+                        <li>Haced preguntas por turnos ("¿Hace frío aquí?", "¿Vienes mucho?").</li>
+                        <li>No seáis muy específicos (el espía escucha) ni muy vagos (pareceréis espías).</li>
+                        <li>El espía gana si adivina el lugar o si no es descubierto.</li>
+                    </ol>
+            `,
+                conexion: `
+                < h3 >🧠 Conexión Mental - Reglas</h3 >
+                    <p><strong>Objetivo:</strong> Completar todos los niveles jugando cartas en orden.</p>
+                    <p><strong>Regla de ORO:</strong> 🤫 SILENCIO ABSOLUTO. No hablar, no hacer señas.</p>
+                    <p><strong>Cómo jugar:</strong></p>
+                    <ol>
+                        <li>Tenéis cartas del 1 al 100.</li>
+                        <li>Debéis jugarlas en el centro en orden ascendente (1, 5, 12, 40...).</li>
+                        <li>No hay turnos. Juega quien crea que tiene la carta más baja.</li>
+                        <li>Si alguien juega una carta y tú tenías una menor, perdéis una vida.</li>
+                        <li><strong>Estrella Ninja:</strong> Si todos votáis sí, cada uno descarta su carta más baja.</li>
+                    </ol>
+            `
             };
 
             const rule = rules[gameName] || '<p>Reglas no disponibles</p>';
             const helpContent = `
-                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 500px; margin: 20px auto;">
+                < div style = "background: white; padding: 30px; border-radius: 15px; max-width: 500px; margin: 20px auto;" >
                     ${rule}
-                    <button onclick="document.getElementById('helpOverlay').style.display='none'" 
-                            style="width: 100%; padding: 15px; margin-top: 20px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;">
-                        Cerrar
-                    </button>
-                </div>
+            <button onclick="document.getElementById('helpOverlay').style.display='none'"
+                style="width: 100%; padding: 15px; margin-top: 20px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer;">
+                Cerrar
+            </button>
+                </div >
             `;
 
             let overlay = document.getElementById('helpOverlay');
@@ -1576,452 +1790,70 @@
         function generateTimesUpWords(count) {
             const allWords = [
                 // Personas famosas
-                'Brad Pitt (actor)', 'Albert Einstein (científico)', 'Michael Jackson (cantante)', 
+                'Brad Pitt (actor)', 'Albert Einstein (científico)', 'Michael Jackson (cantante)',
                 'Marilyn Monroe (actriz)', 'Leonardo DiCaprio (actor)', 'Cleopatra (reina egipcia)',
-                'Mozart (compositor)', 'Pablo Picasso (pintor)', 'William Shakespeare (escritor)', 
+                'Mozart (compositor)', 'Pablo Picasso (pintor)', 'William Shakespeare (escritor)',
                 'Frida Kahlo (pintora)', 'Cristiano Ronaldo (futbolista)', 'Lionel Messi (futbolista)',
                 'Michael Jordan (baloncestista)', 'Serena Williams (tenista)', 'Muhammad Ali (boxeador)',
                 'Steve Jobs (empresario)', 'Barack Obama (presidente)', 'Nelson Mandela (líder)',
-                
+
                 // Personajes de ficción
-                'Harry Potter (personaje)', 'Batman (superhéroe)', 'Superman (superhéroe)', 
+                'Harry Potter (personaje)', 'Batman (superhéroe)', 'Superman (superhéroe)',
                 'Spider-Man (superhéroe)', 'James Bond (agente secreto)', 'Sherlock Holmes (detective)',
                 'Don Quijote (personaje literario)', 'Romeo y Julieta (obra)', 'Pinocho (personaje)',
                 'Cenicienta (cuento)', 'Mickey Mouse (personaje)', 'Buzz Lightyear (personaje)',
-                
+
                 // Monumentos y lugares
                 'La Torre Eiffel (monumento)', 'El Big Ben (reloj)', 'La Estatua de la Libertad (monumento)',
                 'Las Pirámides de Egipto', 'El Coliseo Romano', 'La Gran Muralla China',
                 'El Taj Mahal (monumento)', 'La Torre de Pisa (monumento)',
-                
+
                 // Comida
-                'Pizza (comida)', 'Sushi (comida)', 'Hamburguesa (comida)', 'Paella (comida)', 
+                'Pizza (comida)', 'Sushi (comida)', 'Hamburguesa (comida)', 'Paella (comida)',
                 'Tacos (comida)', 'Pasta (comida)', 'Chocolate (comida)', 'Helado (comida)',
-                
+
                 // Marcas y empresas
-                'Netflix (plataforma)', 'Facebook (red social)', 'Google (buscador)', 
-                'Amazon (tienda online)', 'Apple (empresa)', 'Coca-Cola (bebida)', 
+                'Netflix (plataforma)', 'Facebook (red social)', 'Google (buscador)',
+                'Amazon (tienda online)', 'Apple (empresa)', 'Coca-Cola (bebida)',
                 'Nike (marca deportiva)', 'McDonald\'s (restaurante)', 'Tesla (coche eléctrico)',
-                
+
                 // Películas
-                'Titanic (película)', 'Star Wars (película)', 'El Padrino (película)', 
+                'Titanic (película)', 'Star Wars (película)', 'El Padrino (película)',
                 'Forrest Gump (película)', 'Matrix (película)', 'El Rey León (película)',
                 'Jurassic Park (película)', 'E.T. (película)', 'Avatar (película)',
-                
+
                 // Obras de arte
-                'La Mona Lisa (cuadro)', 'El Guernica (cuadro)', 'La Noche Estrellada (cuadro)', 
+                'La Mona Lisa (cuadro)', 'El Guernica (cuadro)', 'La Noche Estrellada (cuadro)',
                 'El Grito (cuadro de Munch)', 'El David (escultura)', 'La Última Cena (cuadro)',
-                
+
                 // Ciudades
-                'París (ciudad)', 'Nueva York (ciudad)', 'Tokio (ciudad)', 'Londres (ciudad)', 
+                'París (ciudad)', 'Nueva York (ciudad)', 'Tokio (ciudad)', 'Londres (ciudad)',
                 'Roma (ciudad)', 'Barcelona (ciudad)', 'Madrid (ciudad)', 'Berlín (ciudad)',
-                
+
                 // Libros
-                'El Quijote (libro)', 'La Biblia (libro)', 'El Principito (libro)', 
+                'El Quijote (libro)', 'La Biblia (libro)', 'El Principito (libro)',
                 'Cien Años de Soledad (libro)', '1984 (libro de Orwell)', 'Señor de los Anillos (libro)',
-                
+
                 // Animales
-                'Perro (animal)', 'Gato (animal)', 'Elefante (animal)', 'León (animal)', 
+                'Perro (animal)', 'Gato (animal)', 'Elefante (animal)', 'León (animal)',
                 'Delfín (animal)', 'Jirafa (animal)', 'Pingüino (animal)', 'Tigre (animal)',
-                
+
                 // Instrumentos musicales
-                'Piano (instrumento)', 'Guitarra (instrumento)', 'Violín (instrumento)', 
+                'Piano (instrumento)', 'Guitarra (instrumento)', 'Violín (instrumento)',
                 'Batería (instrumento)', 'Trompeta (instrumento)', 'Saxofón (instrumento)',
-                
+
                 // Deportes
-                'Fútbol (deporte)', 'Baloncesto (deporte)', 'Tenis (deporte)', 
+                'Fútbol (deporte)', 'Baloncesto (deporte)', 'Tenis (deporte)',
                 'Golf (deporte)', 'Natación (deporte)', 'Boxeo (deporte)'
             ];
-            
+
             shuffleArray(allWords);
             return allWords.slice(0, count);
-        }
-
-        // ============================================
-        // LOVE LETTER - Lógica completa del juego
-        // ============================================
-
-        const LOVE_LETTER_CARDS = {
-            1: { name: 'Guardia', count: 5, effect: 'Elige un jugador y nombra una carta (excepto Guardia). Si tiene esa carta, queda eliminado.' },
-            2: { name: 'Sacerdote', count: 2, effect: 'Mira la mano de otro jugador.' },
-            3: { name: 'Barón', count: 2, effect: 'Compara tu mano con otro jugador. El que tenga el número más bajo queda eliminado.' },
-            4: { name: 'Doncella', count: 2, effect: 'Estás protegido hasta tu próximo turno.' },
-            5: { name: 'Príncipe', count: 2, effect: 'Elige un jugador (puedes elegirte a ti). Ese jugador descarta su mano y roba una nueva carta.' },
-            6: { name: 'Rey', count: 1, effect: 'Intercambia tu mano con otro jugador.' },
-            7: { name: 'Condesa', count: 1, effect: 'Si tienes Rey o Príncipe en tu mano, DEBES jugar esta carta.' },
-            8: { name: 'Princesa', count: 1, effect: 'Si descartas esta carta, quedas eliminado.' }
-        };
-
-        function createLoveLetterDeck() {
-            const deck = [];
-            for (let value = 1; value <= 8; value++) {
-                const card = LOVE_LETTER_CARDS[value];
-                for (let i = 0; i < card.count; i++) {
-                    deck.push({ value, name: card.name, effect: card.effect });
-                }
-            }
-            shuffleArray(deck);
-            return deck;
-        }
-
-        async function startLoveLetterRound(roomCode) {
-            const snapshot = await database.ref(`rooms/${roomCode}`).once('value');
-            const room = snapshot.val();
-            
-            const deck = createLoveLetterDeck();
-            const removedCard = deck.pop();
-            
-            const updates = {
-                deck: deck,
-                discardPile: [],
-                removedCard: removedCard,
-                currentTurnIndex: 0,
-                roundInProgress: true,
-                waitingForAction: null
-            };
-            
-            room.playerOrder.forEach((playerName) => {
-                const card = deck.pop();
-                updates[`players/${playerName}/hand`] = [card];
-                updates[`players/${playerName}/eliminated`] = false;
-                updates[`players/${playerName}/protected`] = false;
-            });
-            
-            updates.deck = deck;
-            await database.ref(`rooms/${roomCode}`).update(updates);
-        }
-
-        function playLoveLetter(roomCode, playerName) {
-            const gameContent = document.getElementById('gameContent');
-            const gameHeader = document.getElementById('gameHeader');
-            
-            gameHeader.innerHTML = renderGameHeader(roomCode, 'loveletter');
-            
-            roomRef.on('value', (snapshot) => {
-                const room = snapshot.val();
-                if (!room) return;
-                
-                const player = room.players[playerName];
-                if (!player) {
-                    gameContent.innerHTML = '<p style="color: red;">No estás en esta partida.</p>';
-                    return;
-                }
-                
-                const currentPlayer = room.playerOrder[room.currentTurnIndex];
-                const isMyTurn = currentPlayer === playerName;
-                
-                const winner = Object.keys(room.players).find(p => room.players[p].score >= room.pointsToWin);
-                if (winner) {
-                    gameContent.innerHTML = `
-                        <h2 style="text-align: center; color: #667eea;">💌 Love Letter - Fin de la Partida</h2>
-                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px; border-radius: 15px; text-align: center; margin: 20px 0;">
-                            <h1 style="font-size: 48px; margin: 0;">🏆 ${winner} GANA!</h1>
-                            <p style="margin-top: 20px; font-size: 18px;">${room.players[winner].score} puntos</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                if (!room.roundInProgress) {
-                    gameContent.innerHTML = `
-                        <h2 style="text-align: center; color: #667eea;">💌 Love Letter - Ronda ${room.currentRound}</h2>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <p>Puntos para ganar: ${room.pointsToWin}</p>
-                            ${room.playerOrder[0] === playerName ? 
-                                '<div class="btn" onclick="startLoveLetterRound(\'' + roomCode + '\')">Iniciar Ronda</div>' :
-                                '<p style="color: #666;">Esperando que el primer jugador inicie la ronda...</p>'}
-                        </div>
-                    `;
-                    return;
-                }
-                
-                const activePlayers = room.playerOrder.filter(p => !room.players[p].eliminated);
-                if (activePlayers.length === 1) {
-                    const roundWinner = activePlayers[0];
-                    gameContent.innerHTML = `
-                        <h2 style="text-align: center; color: #667eea;">💌 Fin de Ronda ${room.currentRound}</h2>
-                        <div style="background: #fffbea; border: 3px solid #ffd700; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0;">
-                            <h1 style="font-size: 36px; color: #667eea;">${roundWinner} gana la ronda!</h1>
-                            <p>Era el último jugador en pie</p>
-                        </div>
-                        ${playerName === room.playerOrder[0] ? 
-                            '<div class="btn" onclick="endLoveLetterRound(\'' + roomCode + '\', \'' + roundWinner + '\')">Continuar a Siguiente Ronda</div>' :
-                            '<p style="text-align: center; color: #666;">Esperando que el primer jugador continúe...</p>'}
-                    `;
-                    return;
-                }
-                
-                if (room.deck.length === 0) {
-                    let highestValue = 0;
-                    let roundWinner = null;
-                    
-                    activePlayers.forEach(p => {
-                        const cardValue = room.players[p].hand[0].value;
-                        if (cardValue > highestValue) {
-                            highestValue = cardValue;
-                            roundWinner = p;
-                        }
-                    });
-                    
-                    gameContent.innerHTML = `
-                        <h2 style="text-align: center; color: #667eea;">💌 Fin de Ronda ${room.currentRound}</h2>
-                        <div style="background: #fffbea; border: 3px solid #ffd700; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0;">
-                            <h1 style="font-size: 36px; color: #667eea;">${roundWinner} gana la ronda!</h1>
-                            <p>Tenía la carta más alta: ${LOVE_LETTER_CARDS[highestValue].name} (${highestValue})</p>
-                        </div>
-                        ${playerName === room.playerOrder[0] ? 
-                            '<div class="btn" onclick="endLoveLetterRound(\'' + roomCode + '\', \'' + roundWinner + '\')">Continuar a Siguiente Ronda</div>' :
-                            '<p style="text-align: center; color: #666;">Esperando que el primer jugador continúe...</p>'}
-                    `;
-                    return;
-                }
-                
-                let html = `
-                    <h2 style="text-align: center; color: #667eea;">💌 Love Letter - Ronda ${room.currentRound}</h2>
-                    <div style="background: ${isMyTurn ? '#e7f3ff' : '#f8f9fa'}; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
-                        <strong>Turno de: ${currentPlayer}</strong> ${isMyTurn ? '(TÚ)' : ''}
-                        <br><small>Cartas en el mazo: ${room.deck.length}</small>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                `;
-                
-                room.playerOrder.forEach(p => {
-                    const pPlayer = room.players[p];
-                    let style = 'background: #f8f9fa; padding: 12px; border-radius: 8px; margin: 5px 0; border-left: 4px solid #667eea;';
-                    if (pPlayer.eliminated) style = 'background: #f8f9fa; padding: 12px; border-radius: 8px; margin: 5px 0; border-left: 4px solid #dc3545; opacity: 0.5; text-decoration: line-through;';
-                    else if (p === currentPlayer) style = 'background: #e7f3ff; padding: 12px; border-radius: 8px; margin: 5px 0; border-left: 4px solid #ffd700;';
-                    
-                    html += `
-                        <div style="${style}">
-                            <strong>${p}</strong> ${p === playerName ? '(TÚ)' : ''}
-                            ${pPlayer.eliminated ? ' - ELIMINADO' : ''}
-                            ${pPlayer.protected && !pPlayer.eliminated ? ' 🛡️ Protegido' : ''}
-                            <br><small>Puntos: ${pPlayer.score}</small>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-                
-                if (room.discardPile && room.discardPile.length > 0) {
-                    html += '<div style="margin: 15px 0;"><strong>Descartes:</strong><div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;">';
-                    room.discardPile.slice(-5).forEach(c => {
-                        html += `<span style="background: #e0e0e0; padding: 5px 10px; border-radius: 5px; font-size: 12px;">${c.name} (${c.value})</span>`;
-                    });
-                    html += '</div></div>';
-                }
-                
-                if (!player.eliminated && player.hand && player.hand.length > 0) {
-                    html += '<h3 style="margin-top: 20px;">Tu mano:</h3>';
-                    player.hand.forEach((card) => {
-                        html += `
-                            <div style="background: white; border: 3px solid #667eea; border-radius: 12px; padding: 20px; margin: 10px 0;">
-                                <div style="font-size: 32px; font-weight: bold; color: #667eea;">${card.value}</div>
-                                <div style="font-size: 18px; font-weight: bold; margin: 8px 0; color: #333;">${card.name}</div>
-                                <div style="font-size: 13px; color: #666;">${card.effect}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    if (isMyTurn && !room.waitingForAction) {
-                        html += '<div class="btn" onclick="drawLoveLetterCard(\'' + roomCode + '\', \'' + playerName + '\')">Robar Carta</div>';
-                    } else if (isMyTurn && room.waitingForAction === 'chooseCard') {
-                        html += '<h3 style="margin-top: 20px;">Elige una carta para jugar:</h3>';
-                        player.hand.forEach((card, index) => {
-                            html += `<div class="btn" onclick="playLoveLetterCard(\'' + roomCode + '\', \'' + playerName + '\', ${index})">Jugar ${card.name} (${card.value})</div>`;
-                        });
-                    }
-                }
-                
-                gameContent.innerHTML = html;
-            });
-            
-            showScreen('gameScreen');
-        }
-
-        async function drawLoveLetterCard(roomCode, playerName) {
-            const snapshot = await database.ref(`rooms/${roomCode}`).once('value');
-            const room = snapshot.val();
-            
-            if (!room.deck || room.deck.length === 0) {
-                alert('No quedan cartas en el mazo');
-                return;
-            }
-            
-            const card = room.deck[room.deck.length - 1];
-            const newDeck = room.deck.slice(0, -1);
-            const playerHand = room.players[playerName].hand;
-            playerHand.push(card);
-            
-            await database.ref(`rooms/${roomCode}`).update({
-                deck: newDeck,
-                [`players/${playerName}/hand`]: playerHand,
-                waitingForAction: 'chooseCard'
-            });
-        }
-
-        async function playLoveLetterCard(roomCode, playerName, cardIndex) {
-            const snapshot = await database.ref(`rooms/${roomCode}`).once('value');
-            const room = snapshot.val();
-            
-            const player = room.players[playerName];
-            const card = player.hand[cardIndex];
-            
-            if (player.hand.some(c => c.value === 7)) {
-                const otherCard = player.hand.find(c => c.value !== 7);
-                if (otherCard && (otherCard.value === 5 || otherCard.value === 6)) {
-                    if (card.value !== 7) {
-                        alert('Debes jugar la Condesa si tienes Rey o Príncipe');
-                        return;
-                    }
-                }
-            }
-            
-            const newHand = player.hand.filter((_, i) => i !== cardIndex);
-            const newDiscardPile = [...room.discardPile, card];
-            
-            const updates = {
-                [`players/${playerName}/hand`]: newHand,
-                discardPile: newDiscardPile,
-                waitingForAction: null
-            };
-            
-            room.playerOrder.forEach(p => {
-                updates[`players/${p}/protected`] = false;
-            });
-            
-            await applyLoveLetterCardEffect(roomCode, playerName, card, room, updates);
-        }
-
-        async function applyLoveLetterCardEffect(roomCode, playerName, card, room, updates) {
-            switch (card.value) {
-                case 1:
-                    const targetName = prompt('Elige un jugador (nombre exacto):');
-                    if (targetName && room.players[targetName] && !room.players[targetName].eliminated && !room.players[targetName].protected) {
-                        const guessValue = parseInt(prompt('Adivina el número de su carta (2-8):'));
-                        if (guessValue >= 2 && guessValue <= 8) {
-                            const targetCard = room.players[targetName].hand[0];
-                            if (targetCard && targetCard.value === guessValue) {
-                                updates[`players/${targetName}/eliminated`] = true;
-                                updates.discardPile = [...updates.discardPile, targetCard];
-                                updates[`players/${targetName}/hand`] = [];
-                                alert(`¡Correcto! ${targetName} tenía ${targetCard.name} y queda eliminado`);
-                            } else {
-                                alert(`Incorrecto. ${targetName} no tiene esa carta.`);
-                            }
-                        }
-                    }
-                    break;
-                    
-                case 2:
-                    const priestTarget = prompt('Elige un jugador para ver su carta:');
-                    if (priestTarget && room.players[priestTarget] && !room.players[priestTarget].eliminated && !room.players[priestTarget].protected) {
-                        const targetCard = room.players[priestTarget].hand[0];
-                        if (targetCard) {
-                            alert(`${priestTarget} tiene: ${targetCard.name} (${targetCard.value})`);
-                        }
-                    }
-                    break;
-                    
-                case 3:
-                    const baronTarget = prompt('Elige un jugador para comparar manos:');
-                    if (baronTarget && room.players[baronTarget] && !room.players[baronTarget].eliminated && !room.players[baronTarget].protected && baronTarget !== playerName) {
-                        const myCard = room.players[playerName].hand[0];
-                        const theirCard = room.players[baronTarget].hand[0];
-                        
-                        if (myCard && theirCard) {
-                            if (myCard.value > theirCard.value) {
-                                updates[`players/${baronTarget}/eliminated`] = true;
-                                updates.discardPile = [...updates.discardPile, theirCard];
-                                updates[`players/${baronTarget}/hand`] = [];
-                                alert(`¡Ganaste! ${baronTarget} queda eliminado.`);
-                            } else if (myCard.value < theirCard.value) {
-                                updates[`players/${playerName}/eliminated`] = true;
-                                updates.discardPile = [...updates.discardPile, myCard];
-                                updates[`players/${playerName}/hand`] = [];
-                                alert(`Perdiste. Quedas eliminado.`);
-                            } else {
-                                alert(`Empate.`);
-                            }
-                        }
-                    }
-                    break;
-                    
-                case 4:
-                    updates[`players/${playerName}/protected`] = true;
-                    break;
-                    
-                case 5:
-                    const princeTarget = prompt('Elige un jugador que descarte y robe:');
-                    if (princeTarget && room.players[princeTarget] && !room.players[princeTarget].eliminated && (princeTarget === playerName || !room.players[princeTarget].protected)) {
-                        const discarded = room.players[princeTarget].hand[0];
-                        if (discarded) {
-                            updates.discardPile = [...updates.discardPile, discarded];
-                            if (discarded.value === 8) {
-                                updates[`players/${princeTarget}/eliminated`] = true;
-                                updates[`players/${princeTarget}/hand`] = [];
-                                alert(`${princeTarget} descartó la Princesa y queda eliminado`);
-                            } else {
-                                if (room.deck.length > 0) {
-                                    const newCard = room.deck[room.deck.length - 1];
-                                    updates.deck = room.deck.slice(0, -1);
-                                    updates[`players/${princeTarget}/hand`] = [newCard];
-                                } else {
-                                    updates[`players/${princeTarget}/hand`] = [room.removedCard];
-                                }
-                            }
-                        }
-                    }
-                    break;
-                    
-                case 6:
-                    const kingTarget = prompt('Elige un jugador para intercambiar manos:');
-                    if (kingTarget && room.players[kingTarget] && !room.players[kingTarget].eliminated && !room.players[kingTarget].protected && kingTarget !== playerName) {
-                        const myCard = room.players[playerName].hand[0];
-                        const theirCard = room.players[kingTarget].hand[0];
-                        
-                        if (myCard && theirCard) {
-                            updates[`players/${playerName}/hand`] = [theirCard];
-                            updates[`players/${kingTarget}/hand`] = [myCard];
-                            alert(`Intercambiaste cartas con ${kingTarget}`);
-                        }
-                    }
-                    break;
-                    
-                case 7:
-                    break;
-                    
-                case 8:
-                    updates[`players/${playerName}/eliminated`] = true;
-                    updates[`players/${playerName}/hand`] = [];
-                    alert('Jugaste la Princesa. Quedas eliminado.');
-                    break;
-            }
-            
-            let nextTurnIndex = (room.currentTurnIndex + 1) % room.playerOrder.length;
-            while (room.players[room.playerOrder[nextTurnIndex]].eliminated) {
-                nextTurnIndex = (nextTurnIndex + 1) % room.playerOrder.length;
-            }
-            
-            updates.currentTurnIndex = nextTurnIndex;
-            await database.ref(`rooms/${roomCode}`).update(updates);
-        }
-
-        async function endLoveLetterRound(roomCode, winnerName) {
-            const snapshot = await database.ref(`rooms/${roomCode}`).once('value');
-            const room = snapshot.val();
-            
-            const newScore = room.players[winnerName].score + 1;
-            
-            await database.ref(`rooms/${roomCode}`).update({
-                [`players/${winnerName}/score`]: newScore,
-                currentRound: room.currentRound + 1,
-                roundInProgress: false,
-                currentTurnIndex: 0
-            });
         }
 
         // Inicialización
         showHome();
     </script>
 </body>
+
 </html>

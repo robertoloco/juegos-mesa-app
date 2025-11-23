@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#6C5CE7">
+    <title>🧠 Conexión Mental</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de inicio -->
+        <div id="pantallaInicio" class="pantalla active">
+            <div class="logo">
+                <h1>🧠 Conexión Mental</h1>
+                <p class="subtitle">El juego de palabras definitivo</p>
+            </div>
+            
+            <div class="config-card">
+                <div class="config-item">
+                    <label>🎯 Dificultad</label>
+                    <select id="nivel">
+                        <option value="facil">Fácil - Palabras comunes</option>
+                        <option value="medio" selected>Medio - Equilibrado</option>
+                        <option value="dificil">Difícil - Desafiante</option>
+                    </select>
+                </div>
+                
+                <div class="config-item">
+                    <label>👥 Número de equipos</label>
+                    <input type="number" id="numEquipos" min="2" max="6" value="2">
+                </div>
+                
+                <div class="config-item">
+                    <label>⏱️ Tiempo por ronda (segundos)</label>
+                    <input type="number" id="tiempoRonda" min="15" max="120" value="30" step="5">
+                </div>
+                
+                <button class="btn-primary" onclick="iniciarJuego()">
+                    🎮 COMENZAR PARTIDA
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla de juego -->
+        <div id="pantallaJuego" class="pantalla">
+            <div class="game-header">
+                <button class="btn-icon" onclick="volverInicio()">🏠</button>
+                <div class="timer" id="cronometro">30</div>
+                <button class="btn-icon" onclick="pausarJuego()">⏸️</button>
+            </div>
+
+            <div class="word-card">
+                <div class="word-text" id="palabra">Presiona START</div>
+                <div class="definition" id="definicion"></div>
+                <button class="btn-hint" id="verDefBtn" onclick="toggleDefinicion()">
+                    💡 Ver Pista
+                </button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-next" onclick="nuevaPalabra()">
+                    ➡️ NUEVA PALABRA
+                </button>
+                <button class="btn-skip" onclick="empate()">
+                    ⏭️ PASAR
+                </button>
+            </div>
+
+            <div class="teams-container" id="equiposContainer"></div>
+        </div>
+
+        <!-- Pantalla de victoria -->
+        <div id="pantallaVictoria" class="pantalla">
+            <div class="victory-content">
+                <h1 class="victory-title">🏆</h1>
+                <h2 id="ganadorTexto">¡Equipo ganador!</h2>
+                <div id="podium"></div>
+                <button class="btn-primary" onclick="volverInicio()">
+                    🔄 NUEVA PARTIDA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="palabras.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
