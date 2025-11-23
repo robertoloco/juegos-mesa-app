@@ -1,21 +1,54 @@
-justify-content: center;
-align-items: center;
-padding: 20px;
-}
+<!DOCTYPE html>
+<html lang="es">
 
-.container {
-background: white;
-border-radius: 20px;
-padding: 30px;
-max-width: 600px;
-width: 100%;
-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juegos de Grupo</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
 
-h1 {
-color: #667eea;
-margin-bottom: 10px;
-font-size: 28px;
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <!-- Configuración de Firebase -->
+    <script src="firebase-config.js"></script>
+
+    <!-- Lógica de Juegos -->
+    <script src="new-games.js"></script>
+    <script src="loveletter-implementation.js"></script>
+    <script src="conexion-implementation.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
 text-align: center;
 }
 
