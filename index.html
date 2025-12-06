@@ -510,14 +510,27 @@
             <div class="btn btn-secondary" onclick="showHome()">Volver</div>
         </div>
 
-        <label>Tu Nombre (para unirte):</label>
-        <input type="text" id="creatorName" placeholder="Tu nombre">
+        <!-- Pantalla: Sala Creada -->
+        <div id="lobbyScreen" class="screen">
+            <h1>🎮 Sala Creada</h1>
 
-        <div class="btn" onclick="creatorJoinGame()">Unirme a la Sala</div>
-        <div class="btn btn-secondary" onclick="showHome()">Crear Nueva Sala</div>
-    </div>
+            <div class="code-display">
+                <div class="code" id="roomCode">----</div>
+                <p>Comparte este código con los jugadores</p>
+            </div>
 
-    <!-- Pantalla: Unirse a Sala -->
+            <div class="info">
+                👉 Ahora puedes unirte a tu propia sala introduciendo tu nombre y el código
+            </div>
+
+            <label>Tu Nombre (para unirte):</label>
+            <input type="text" id="creatorName" placeholder="Tu nombre">
+
+            <div class="btn" onclick="creatorJoinGame()">Unirme a la Sala</div>
+            <div class="btn btn-secondary" onclick="showHome()">Crear Nueva Sala</div>
+        </div>
+
+        <!-- Pantalla: Unirse a Sala -->
     <div id="joinGameScreen" class="screen">
         <h1>Unirse a Sala</h1>
         <p class="subtitle">Introduce tus datos</p>
