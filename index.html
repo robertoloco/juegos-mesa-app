@@ -519,6 +519,12 @@
                 <p>Comparte este código con los jugadores</p>
             </div>
 
+            <div id="lobbyPlayers" style="background:#f8f9fa; border:2px dashed #667eea; border-radius:12px; padding:16px; margin:16px 0;">
+                <div style="font-weight:600; color:#667eea; margin-bottom:8px;">Jugadores</div>
+                <div id="lobbyPlayersConnected" style="margin-bottom:8px;"></div>
+                <div id="lobbyPlayersMissing"></div>
+            </div>
+
             <div class="info">
                 👉 Ahora puedes unirte a tu propia sala introduciendo tu nombre y el código
             </div>
@@ -852,6 +858,28 @@
             document.getElementById('roomCode').textContent = roomCode;
             document.getElementById('creatorName').value = '';
             showScreen('lobbyScreen');
+
+            // Escuchar cambios para mostrar quiénes han entrado
+            const lobbyConnectedEl = document.getElementById('lobbyPlayersConnected');
+            const lobbyMissingEl = document.getElementById('lobbyPlayersMissing');
+            const ref = database.ref('rooms/' + roomCode);
+            ref.on('value', (snapshot) => {
+                const room = snapshot.val();
+                if (!room) return;
+                const players = room.players ? Object.keys(room.players) : [];
+
+                if (players.length === 0) {
+                    lobbyConnectedEl.innerHTML = '<em>Este juego no tiene lista previa de jugadores. Los jugadores se irán agregando al entrar.</em>';
+                    lobbyMissingEl.innerHTML = '';
+                    return;
+                }
+
+                const connected = players.filter(p => room.players[p] && room.players[p].joined);
+                const missing = players.filter(p => !room.players[p] || !room.players[p].joined);
+
+                lobbyConnectedEl.innerHTML = `✅ Conectados (${connected.length}/${players.length}): ${connected.length ? connected.join(', ') : '<em>ninguno</em>'}`;
+                lobbyMissingEl.innerHTML = missing.length ? `⏳ Faltan por entrar (${missing.length}): ${missing.join(', ')}` : '🎉 ¡Todos han entrado!';
+            });
         }
 
         // Creador se une a su propia sala
@@ -877,6 +905,11 @@
                 currentRoom = room;
                 currentRoom.code = roomCode;
                 roomRef = database.ref('rooms/' + roomCode);
+
+                // Marcar jugador como conectado (si existe en la lista)
+                if (room.players && room.players[playerName]) {
+                    await database.ref(`rooms/${roomCode}/players/${playerName}/joined`).set(true);
+                }
 
                 // Jugar según el tipo de juego
                 if (room.game === 'quickstop') {
@@ -931,6 +964,11 @@
                 currentRoom = room;
                 currentRoom.code = roomCode;
                 roomRef = database.ref('rooms/' + roomCode);
+
+                // Marcar jugador como conectado (si existe en la lista)
+                if (room.players && room.players[playerName]) {
+                    await database.ref(`rooms/${roomCode}/players/${playerName}/joined`).set(true);
+                }
 
                 // Jugar según el tipo de juego
                 if (room.game === 'quickstop') {
