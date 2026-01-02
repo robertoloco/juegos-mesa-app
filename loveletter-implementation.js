@@ -167,7 +167,7 @@ function playLoveLetter(roomCode, playerName) {
             return;
         }
 
-        if (room.deck.length === 0) {
+        if (!Array.isArray(room.deck) || room.deck.length === 0) {
             // Se acabó el mazo - gana el jugador con la carta más alta
             let highestValue = 0;
             let roundWinner = null;
@@ -230,12 +230,12 @@ function playLoveLetter(roomCode, playerName) {
         html += '</div>';
 
         // Mostrar cartas descartadas
-        if (room.discardPile.length > 0) {
+        if (Array.isArray(room.discardPile) && room.discardPile.length > 0) {
             html += `
                 <div style="margin: 15px 0;">
                     <strong>Descartes:</strong>
                     <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px;">
-                        ${room.discardPile.slice(-5).map(c => `
+                        ${(room.discardPile || []).slice(-5).map(c => `
                             <span style="background: #e0e0e0; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
                                 ${c.name} (${c.value})
                             </span>
@@ -300,7 +300,7 @@ async function drawLoveLetterCard(roomCode, playerName) {
     const snapshot = await database.ref(`rooms/${roomCode}`).once('value');
     const room = snapshot.val();
 
-    if (room.deck.length === 0) {
+    if (!Array.isArray(room.deck) || room.deck.length === 0) {
         alert('No quedan cartas en el mazo');
         return;
     }
