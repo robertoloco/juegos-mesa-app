@@ -2432,9 +2432,15 @@
                 const room = snapshot.val();
                 if (!room) return;
 
+                // Si el jugador no existe, crearlo con una mano vacía (puede ser una sala antigua)
+                if (!room.players[playerName]) {
+                    gameContent.innerHTML = '<p style="color: red;">No estás registrado en esta partida. Esta sala fue creada con una versión antigua del juego.</p>';
+                    return;
+                }
+                
                 const player = room.players[playerName];
-                if (!player) {
-                    gameContent.innerHTML = '<p style="color: red;">No estás registrado en esta partida</p>';
+                if (!player.hand) {
+                    gameContent.innerHTML = '<p style="color: red;">Error: El jugador no tiene letras asignadas. Crea una nueva sala.</p>';
                     return;
                 }
 
@@ -2473,14 +2479,18 @@
                 
                 // Mano del jugador
                 html += '<h3>Tu mano:</h3><div style="display: flex; gap: 10px; margin: 15px 0; flex-wrap: wrap;">';
-                player.hand.forEach((letterObj, index) => {
+                if (player.hand && player.hand.length > 0) {
+                    player.hand.forEach((letterObj, index) => {
                     html += `
                         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; min-width: 60px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                             <div style="font-size: 32px; font-weight: bold;">${letterObj.letter}</div>
                             <div style="font-size: 12px; opacity: 0.8;">${letterObj.points} pts</div>
                         </div>
                     `;
-                });
+                    });
+                } else {
+                    html += '<p style="color: #999;">No tienes letras en tu mano.</p>';
+                }
                 html += '</div>';
 
                 if (room.phase === 'waiting') {
@@ -2493,6 +2503,12 @@
                         </div>
                     `;
                 } else if (room.phase === 'playing') {
+                    if (!player.hand || player.hand.length === 0) {
+                        html += '<div class="info">Ya no tienes letras. Esperando que termine la ronda...</div>';
+                        gameContent.innerHTML = html;
+                        return;
+                    }
+                    
                     const currentLetter = player.hand[0]; // Primera letra de la mano
                     const hasAnswered = room.roundAnswers && room.roundAnswers[playerName];
                     
