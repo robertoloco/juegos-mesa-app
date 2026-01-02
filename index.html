@@ -596,6 +596,7 @@
         let selectedGame = null;
         let currentRoom = null;
         let roomRef = null;
+        let currentPlayerName = null;
 
         // Navegación entre pantallas
         function showScreen(screenId) {
@@ -696,7 +697,14 @@
                     return;
                 }
 
-                players = playerNamesInput.split(',').map(name => name.trim()).filter(name => name);
+                // Normalizar nombres: minúsculas y sin acentos
+                players = playerNamesInput.split(',').map(name => {
+                    return name.trim()
+                        .toLowerCase()
+                        .normalize('NFD')
+                        .replace(/[\u0300-\u036f]/g, '')
+                        .replace(/[^a-z0-9 ]/g, '');
+                }).filter(name => name);
 
                 if (players.length < 3 && selectedGame !== 'codigo' && selectedGame !== 'loveletter' && selectedGame !== 'timesup') {
                     alert('Se necesitan mínimo 3 jugadores');
@@ -986,7 +994,11 @@
 
         // Creador se une a su propia sala
         async function creatorJoinGame() {
-            const playerName = document.getElementById('creatorName').value.trim();
+            const playerName = document.getElementById('creatorName').value.trim()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 ]/g, '');
             const roomCode = document.getElementById('roomCode').textContent;
 
             if (!playerName) {
@@ -1007,6 +1019,7 @@
                 currentRoom = room;
                 currentRoom.code = roomCode;
                 roomRef = database.ref('rooms/' + roomCode);
+                currentPlayerName = playerName;
 
                 // Marcar jugador como conectado (si existe en la lista)
                 if (room.players && room.players[playerName]) {
@@ -1042,7 +1055,11 @@
 
         // Unirse a sala
         async function joinGame() {
-            const playerName = document.getElementById('playerName').value.trim();
+            const playerName = document.getElementById('playerName').value.trim()
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9 ]/g, '');
             const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
 
             if (!playerName) {
@@ -1068,6 +1085,7 @@
                 currentRoom = room;
                 currentRoom.code = roomCode;
                 roomRef = database.ref('rooms/' + roomCode);
+                currentPlayerName = playerName;
 
                 // Marcar jugador como conectado (si existe en la lista)
                 if (room.players && room.players[playerName]) {
@@ -1170,6 +1188,13 @@
             });
 
             await database.ref(`rooms/${roomCode}`).update(updates);
+            
+            // Recargar la vista automáticamente
+            const updatedSnapshot = await database.ref(`rooms/${roomCode}`).once('value');
+            const updatedRoom = updatedSnapshot.val();
+            if (updatedRoom && currentPlayerName) {
+                showRole(updatedRoom, currentPlayerName);
+            }
         }
 
         // Código Secreto - Generar tablero
