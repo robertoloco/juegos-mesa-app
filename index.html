@@ -533,7 +533,7 @@
             <textarea id="playerNames" placeholder="Juan, María, Pedro, Ana"></textarea>
 
             <div class="info">
-                ℹ️ Mínimo 3 jugadores para Blanco/Lobo, 4 para Código Secreto/Time's Up, 2-4 para Love Letter
+                ℹ️ Mínimo: 2 para Quick Stop/Love Letter, 3 para Blanco/Lobo/Spyfall, 4 para Código Secreto/Time's Up
             </div>
 
             <div class="btn" onclick="createGame()">Crear Sala</div>
@@ -681,41 +681,44 @@
 
             // Validar jugadores
             let players = [];
-            if (selectedGame !== 'quickstop') {
-                const playerNamesInput = document.getElementById('playerNames').value.trim();
-                if (!playerNamesInput || playerNamesInput === 'No requerido') {
-                    alert('Por favor introduce los nombres de los jugadores');
-                    return;
-                }
+            const playerNamesInput = document.getElementById('playerNames').value.trim();
+            if (!playerNamesInput || playerNamesInput === 'No requerido') {
+                alert('Por favor introduce los nombres de los jugadores');
+                return;
+            }
 
-                // Normalizar nombres: minúsculas y sin acentos
-                players = playerNamesInput.split(',').map(name => {
-                    return name.trim()
-                        .toLowerCase()
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '')
-                        .replace(/[^a-z0-9 ]/g, '');
-                }).filter(name => name);
+            // Normalizar nombres: minúsculas y sin acentos
+            players = playerNamesInput.split(',').map(name => {
+                return name.trim()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9 ]/g, '');
+            }).filter(name => name);
 
-                if (players.length < 3 && selectedGame !== 'codigo' && selectedGame !== 'loveletter' && selectedGame !== 'timesup') {
-                    alert('Se necesitan mínimo 3 jugadores');
-                    return;
-                }
+            if (players.length < 2 && selectedGame === 'quickstop') {
+                alert('Quick Stop necesita mínimo 2 jugadores');
+                return;
+            }
 
-                if (players.length < 4 && (selectedGame === 'codigo' || selectedGame === 'timesup')) {
-                    alert('Código Secreto y Time\'s Up necesitan mínimo 4 jugadores (2 por equipo)');
-                    return;
-                }
+            if (players.length < 3 && selectedGame !== 'codigo' && selectedGame !== 'loveletter' && selectedGame !== 'timesup' && selectedGame !== 'quickstop') {
+                alert('Se necesitan mínimo 3 jugadores');
+                return;
+            }
 
-                if ((players.length < 2 || players.length > 4) && selectedGame === 'loveletter') {
-                    alert('Love Letter necesita entre 2 y 4 jugadores');
-                    return;
-                }
+            if (players.length < 4 && (selectedGame === 'codigo' || selectedGame === 'timesup')) {
+                alert('Código Secreto y Time\'s Up necesitan mínimo 4 jugadores (2 por equipo)');
+                return;
+            }
 
-                if (selectedGame === 'spyfall' && players.length < 3) {
-                    alert('Spyfall necesita mínimo 3 jugadores');
-                    return;
-                }
+            if ((players.length < 2 || players.length > 4) && selectedGame === 'loveletter') {
+                alert('Love Letter necesita entre 2 y 4 jugadores');
+                return;
+            }
+
+            if (selectedGame === 'spyfall' && players.length < 3) {
+                alert('Spyfall necesita mínimo 3 jugadores');
+                return;
             }
 
             // Blanco ya no necesita validación de palabra manual
