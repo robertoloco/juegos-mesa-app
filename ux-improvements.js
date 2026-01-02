@@ -9,13 +9,11 @@ function initGameSelector() {
             <option value="blanco">🎭 Blanco</option>
             <option value="lobo">🐺 El Lobo</option>
             <option value="codigo">🔐 Código Secreto</option>
-            <option value="quickstop">🏃 Quick Stop</option>
             <option value="loveletter">💌 Love Letter</option>
             <option value="timesup">⏱️ Time's Up</option>
             <option value="overunder">📊 Over/Under</option>
             <option value="spyfall">🕵️ Spyfall</option>
             <option value="conexion">🧠 Conexión Mental</option>
-            <option value="espectro">🌈 Espectro Mental</option>
         </select>
 
         <!-- Game Info Display -->
@@ -50,11 +48,6 @@ const GAME_DATA = {
         desc: 'Dos equipos compiten dando pistas para encontrar sus agentes.',
         players: 'Mínimo 4 jugadores (2 por equipo)'
     },
-    quickstop: {
-        title: '🏃 Quick Stop',
-        desc: 'Completa categorías con palabras que empiecen con la letra indicada.',
-        players: 'Mínimo 2 jugadores (requiere lista previa de jugadores)'
-    },
     loveletter: {
         title: '💌 Love Letter',
         desc: 'Juego de deducción y faroleo. Sé el último en pie o termina con la carta más alta.',
@@ -80,11 +73,7 @@ const GAME_DATA = {
         desc: 'Juego cooperativo de palabras. ¡Conectad vuestras mentes!',
         players: '2-6 equipos'
     },
-    espectro: {
-        title: '🌈 Espectro Mental',
-        desc: 'Juego social tipo Wavelength con espectros de conceptos opuestos.',
-        players: '3-10 jugadores (modo equipos, individual o cooperativo)'
-    }
+    espectro: undefined
 };
 
 // New selectGame function for dropdown

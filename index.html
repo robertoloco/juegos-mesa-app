@@ -435,10 +435,6 @@
                     <h3>🔐 Código Secreto</h3>
                     <p>Dos equipos compiten dando pistas para encontrar sus agentes. ¡Cuidado con el asesino!</p>
                 </div>
-                <div class="game-card" onclick="selectGame('quickstop')">
-                    <h3>🏃 Quick Stop</h3>
-                    <p>Empieza con 5 letras. Responde rápido con palabras según el tema. ¡El último en responder pierde!</p>
-                </div>
                 <div class="game-card" onclick="selectGame('loveletter')">
                     <h3>💌 Love Letter</h3>
                     <p>Juego de deducción y faroleo. Sé el último en pie o termina con la carta más alta.</p>
@@ -464,10 +460,6 @@
                     </p>
                 </div>
 
-                <div class="game-card" onclick="selectGame('espectro')">
-                    <h3>🌈 Espectro Mental</h3>
-                    <p>Juego social tipo Wavelength: interpreta una pista en un espectro de conceptos opuestos.</p>
-                </div>
             </div>
 
             <!-- Configuración Blanco -->
@@ -2205,8 +2197,7 @@
                 let html = `
                     <h2 style="text-align: center; color: #667eea; margin-bottom: 10px;">⏱️ Time's Up</h2>
                     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; text-align: center; margin-bottom: 15px;">
-                        <strong>Fase ${room.currentRound}: ${roundNames[room.currentRound]}</strong><br>
-                        <small style="opacity: 0.9;">Las mismas cartas en cada fase</small>
+                        <strong>Fase ${room.currentRound}: ${roundNames[room.currentRound]}</strong>
                     </div>
                     <div style="display: flex; justify-content: space-around; margin-bottom: 15px;">
                         <div style="background: #ff6b6b; color: white; padding: 15px 20px; border-radius: 8px; font-weight: bold;">
@@ -2308,11 +2299,13 @@
             const newWordIndex = room.currentWordIndex + 1;
 
             if (newWordIndex >= room.words.length) {
-                // Todas las cartas usadas, siguiente fase
+                // Todas las cartas usadas, siguiente fase.
+                // La siguiente fase la empieza el siguiente jugador en el orden rotado.
+                const nextPlayerIndex = (room.currentPlayerIndex + 1) % allPlayers.length;
                 await database.ref(`rooms/${roomCode}`).update({
                     currentRound: room.currentRound + 1,
                     currentWordIndex: 0,
-                    currentPlayerIndex: 0,
+                    currentPlayerIndex: nextPlayerIndex,
                     timerActive: false,
                     timeRemaining: 30,
                     [scoreField]: room[scoreField] + 1
@@ -2332,11 +2325,22 @@
             const newWordIndex = room.currentWordIndex + 1;
 
             if (newWordIndex >= room.words.length) {
-                // Todas las cartas usadas, siguiente fase sin sumar puntos
+                // Todas las cartas usadas, siguiente fase sin sumar puntos.
+                // La siguiente fase la empieza el siguiente jugador en el orden rotado.
+                const teamAPlayers = room.teamAPlayers;
+                const teamBPlayers = room.teamBPlayers;
+                const allPlayers = [];
+                const maxLen = Math.max(teamAPlayers.length, teamBPlayers.length);
+                for (let i = 0; i < maxLen; i++) {
+                    if (i < teamAPlayers.length) allPlayers.push(teamAPlayers[i]);
+                    if (i < teamBPlayers.length) allPlayers.push(teamBPlayers[i]);
+                }
+                const nextPlayerIndex = (room.currentPlayerIndex + 1) % allPlayers.length;
+
                 await database.ref(`rooms/${roomCode}`).update({
                     currentRound: room.currentRound + 1,
                     currentWordIndex: 0,
-                    currentPlayerIndex: 0,
+                    currentPlayerIndex: nextPlayerIndex,
                     timerActive: false,
                     timeRemaining: 30
                 });
@@ -2362,26 +2366,35 @@
             
             const nextPlayerIndex = room.currentPlayerIndex + 1;
 
-            if (nextPlayerIndex >= allPlayers.length) {
-                // Todos los jugadores terminaron su turno, siguiente fase
+            // Si es el primer turno de la fase, guardamos quién empezó esta fase
+            const isFirstTurnOfPhase = room.turnsThisPhase == null || room.turnsThisPhase === 0;
+            const turnsThisPhase = (room.turnsThisPhase || 0) + 1;
+
+            if (isFirstTurnOfPhase) {
+                await database.ref(`rooms/${roomCode}/startPhaseIndex`).set(room.currentPlayerIndex);
+            }
+
+            if (turnsThisPhase >= allPlayers.length) {
+                // Todos los jugadores terminaron su turno en esta fase.
+                // Pasamos a la siguiente fase y empezará el SIGUIENTE jugador respecto al inicio de esta fase.
+                const startIndex = room.startPhaseIndex != null ? room.startPhaseIndex : 0;
+                const startNextPhaseIndex = (startIndex + 1) % allPlayers.length;
                 await database.ref(`rooms/${roomCode}`).update({
                     currentRound: room.currentRound + 1,
-                    currentPlayerIndex: 0,
+                    currentPlayerIndex: startNextPhaseIndex,
                     currentWordIndex: 0,
                     timerActive: false,
-                    timeRemaining: 30
+                    timeRemaining: 30,
+                    startPhaseIndex: startNextPhaseIndex,
+                    turnsThisPhase: 0
                 });
             } else {
                 await database.ref(`rooms/${roomCode}`).update({
                     currentPlayerIndex: nextPlayerIndex,
                     timerActive: false,
-                    timeRemaining: 30
+                    timeRemaining: 30,
+                    turnsThisPhase: turnsThisPhase
                 });
-            }
-
-            if (timesUpInterval) {
-                clearInterval(timesUpInterval);
-                timesUpInterval = null;
             }
         }
 
